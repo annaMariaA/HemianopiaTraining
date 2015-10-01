@@ -1,6 +1,6 @@
-setwd("C:/Users/r02al13/Desktop/LineSegmEasyDiff")
+setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 fixdat = readRDS(file="data/processedFixData.Rda")
-cbPalette <- c("#56B4E9", "#E69F00")
+cbPalette <- c("#56B4E9", "#E69F00", "#0072B2", "#D55E00", "#CC79A7")
 library(lme4)
 library(ggplot2)
 library(scales)
@@ -72,43 +72,11 @@ ggsave("plots/sightVblindSaccAmp.pdf", width=10, height=3)
 
 pd<-position_dodge(.1)
 fixdat$prop = fixdat$saccSide == "blind"
-propSaccBlind = aggregate(data=fixdat, prop ~ subj+var+hemiType, FUN="mean")
-propSaccBlind$subj <- factor(propSaccBlind$subj, levels = c("1", "2", "3","4", "5", "6","8", "9", "10","11", "12", "13","14", "15", "16","18", "19", "20","21", "22"))
-errorBar=summarySE(propSaccBlind, measurevar="prop", groupvars=c("var", "hemiType"))
-p1 = ggplot(data=errorBar, aes(x=var, y=prop, group=hemiType, colour=hemiType,group=supp))+geom_line(position=pd, size=1 )+geom_point(position=pd,size=2)
-p1 = p1 + scale_y_continuous(limits=c(0.1, 0.7),name="Proportion of all saccades into blind") + scale_x_discrete(name="Search difficulty")+ scale_color_manual(name="Mask type",values=cbPalette)
+#fixdat = fixdat[which(fixdat$fixNum==1),]
+fixdat = fixdat[which(fixdat$hemiType=="Blank"),]
+propSaccBlind = aggregate(data=fixdat, prop ~ subjN+var+session, FUN="mean")
+p1 = ggplot(data=propSaccBlind, aes(x=var, y=prop, group=session, colour=session,group=supp))+geom_line(position=pd, size=1 )+geom_point(position=pd,size=2)
+p1 = p1 + scale_y_continuous(limits=c(0.1, 1),name="Proportion of all saccades into blind") + scale_x_discrete(name="Search difficulty")+ scale_color_manual(name="Session",values=cbPalette)+ facet_wrap(~subjN)
 p1= p1+ theme_minimal()
-#p1=p1+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
- #   panel.background = element_blank(), axis.line = element_line(colour = "black"))
-p1 = p1 + geom_errorbar(aes(ymin=prop-ci, ymax=prop+ci), width=.1, position=pd)
-
-fixdat = fixdat[which(fixdat$fixNum==1),]
-propSaccBlind = aggregate(data=fixdat, prop ~ subj+var+hemiType, FUN="mean")
-propSaccBlind$subj <- factor(propSaccBlind$subj, levels = c("1", "2", "3","4", "5", "6","8", "9", "10","11", "12", "13","14", "15", "16","18", "19", "20","21", "22"))
-errorBar=summarySE(propSaccBlind, measurevar="prop", groupvars=c("var", "hemiType"))
-p2 = ggplot(data=errorBar, aes(x=var, y=prop, group=hemiType, colour=hemiType,group=supp))+geom_line(position=pd, size=1 )+geom_point(position=pd,size=2)
-p2 = p2 + scale_y_continuous(limits=c(0.1, 0.7),name="Proportion of first saccades into blind") + scale_x_discrete(name="Search difficulty") + scale_color_manual(name="Mask type",values=cbPalette)
-p2=p2 + theme_minimal()
-#p2=p2+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
- #   panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-p2 = p2 + geom_errorbar(aes(ymin=prop-ci, ymax=prop+ci), width=.1, position=pd)
-
-
-library(gridExtra)
-get_legend<-function(myggplot){
-  tmp <- ggplot_gtable(ggplot_build(myggplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)
-}
-legend<- get_legend(p1)
-legend<- get_legend(p2)
-p1<- p1+ theme(legend.position="none")
-p2<- p2+ theme(legend.position="none")
-jpeg(filename = "plots/2graphs.jpg",width=900,height=600, pointsize =10, quality = 1000, bg = "white", res = 150, restoreConsole = TRUE)
-
-grid.arrange(p1,p2,legend,ncol=3,widths=c(13,13, 5))
-dev.off()
-
+ggsave("plots/proportionAllSaccadesIntoBlind.jpg", width=10, height=3)
 
