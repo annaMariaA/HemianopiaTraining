@@ -75,8 +75,8 @@ fixdat$prop = fixdat$saccSide == "blind"
 #fixdat = fixdat[which(fixdat$fixNum==1),]
 fixdat = fixdat[which(fixdat$hemiType=="Blank"),]
 propSaccBlind = aggregate(data=fixdat, prop ~ subjN+var+session, FUN="mean")
-p1 = ggplot(data=propSaccBlind, aes(x=var, y=prop, group=session, colour=session,group=supp))+geom_line(position=pd, size=1 )+geom_point(position=pd,size=2)
-p1 = p1 + scale_y_continuous(limits=c(0.1, 1),name="Proportion of all saccades into blind") + scale_x_discrete(name="Search difficulty")+ scale_color_manual(name="Session",values=cbPalette)+ facet_wrap(~subjN)
+p1 = ggplot(data=propSaccBlind, aes(x=session, y=prop, group=var, colour=var,group=supp))+geom_smooth(method=lm, size=1 )+geom_point(position=pd,size=2)
+p1 = p1 + scale_y_continuous(limits=c(0.1, 1),name="Proportion all saccades into blind") + scale_x_discrete(name="Search difficulty")+ scale_color_manual(name="Session",values=cbPalette)+ facet_wrap(~subjN)
 p1= p1+ theme_minimal()
 ggsave("plots/proportionAllSaccadesIntoBlind.jpg", width=10, height=3)
 
