@@ -1,9 +1,8 @@
+library(dplyr)
+# TODO: check subjects to replace
 
-# TODO: check subjects to replace!
-setwd("C:/Users/r02al13/Desktop/LineSegmTraining")
+# setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 # here is a list of the subjects we want to exlude from the analysis:
-# 9 isn't really subject
-# 25 has weirdly long fixation durations (median > 2 seconds!?!?!)
 
 #subjectsToRemove = c(7)#accuracy at 0
 # max fixation duration - remove trial if it is exceeded 
@@ -11,18 +10,17 @@ maxFixDur = 2000
 # read in reaction time and acc data:
 # this will allow us to remove fixation data for incorrect trials
 print("Processing RT and Acc data")
-dat <- read.csv("data/RtAcc11.txt", sep="\t")
-names(dat) = c("subj", "trialNum", "hemiType", "hemiSide","variability", "targPresent", "targSide", "RT", "acc","subject", "session")
+dat <- read.csv("../data/RtAcc5.txt", sep="\t")
+names(dat) = c("subjectN", "session", "trialNum", "hemiType", "hemiSide","variability", "targPresent", "targSide", "RT", "acc")
 dat$targPresent = as.factor(dat$targPresent)
 levels(dat$targPresent) = c("absent", "present")
-levels(dat$hemiType) = c("Blank", "Blank", "Unmodified", "Unmodified")
+levels(dat$hemiType) = c("Blank", "Blank", "Unmodified")
 levels(dat$hemiSide) = c("left", "right")
 dat$var = as.factor(dat$var)
 levels(dat$var) = c("serial", "parallel")
 # remove some subjects
-dat$subject = as.factor(dat$subject)
+dat$subjectN = as.factor(dat$subjectN)
 #dat = (dat[!(dat$subj%in% subjectsToRemove),])
-dat$subject = factor(dat$subject)
 dat$session = as.factor(dat$session)
 
 # make trial unique (just now there is a trial 1 for each block ,etc)
@@ -33,11 +31,11 @@ dat$targSideRel = as.factor(as.character(dat$hemiSide) == as.character(dat$targS
 levels(dat$targSideRel) = levels(dat$targSideRel) = c("sighted", "blind", "absent")
 dat$targSideRel[which(dat$targPresent=="absent")] = "absent"
 # make a new, tidier version of dataframe only including the stuff we want!
-rtdat = data.frame(subj=dat$subject, trial=dat$trial, hemiType=dat$hemiType, hemiSide=dat$hemiSide, targSide=dat$targSideRel, RT=dat$RT, acc=dat$acc, var=dat$var, session=dat$session)
+rtdat = data.frame(subjN=dat$subjectN, trial=dat$trial, hemiType=dat$hemiType, hemiSide=dat$hemiSide, targSide=dat$targSideRel, RT=dat$RT, acc=dat$acc, var=dat$var, session=dat$session)
 # we don't want to be looking at RTs for incorrect trials
 rtdat$RT[rtdat$acc==0] = NaN
 # save!!!
-saveRDS(rtdat,file="data/processedRTandAccData.Rda")
+saveRDS(rtdat,file="../data/processedRTandAccData.Rda")
 
 # remove data for now
 rm(dat, rtdat)
@@ -64,79 +62,40 @@ saccInfo <- function(trialDat)
 }
 
 
-#
-# read in the trial data
-#
-#print("Processing Trial data")
-#itemdat = read.csv("data/allTrialData.txt", sep="\t", header=T)
-#names(itemdat) = c("subj", "trialNum", "hemiType", "hemiSide", "targPresent", "targSide", "itemID", "itemX", "itemY")	
-
-#remove unwanted subjects
-#itemdat$subj = as.factor(itemdat$subj)
-#itemdat = (itemdat[!(itemdat$subj%in% subjectsToRemove),])
-#itemdat$subj = factor(itemdat$subj)
-
-#levels(itemdat$hemiType) = c("Blank", "Blank", "Dot", "Dot", "Filter", "Filter", "Unmodified", "Unmodified")
-#levels(itemdat$hemiSide) = c("left", "right")
-#levels(itemdat$targSide) = c("left", "right", "absent")
-
-# make trial unique (just now there is a trial 1 for each block ,etc)
-#itemdat$trial = factor(paste(itemdat$hemiType, itemdat$hemiSide, itemdat$trialNum))
-
 
 
 #
 # now read in fixation data
 #
 print("Processing Fix data...")
-dat <- read.csv("data/fix22.txt", header=T, sep="\t",
-	colClass = c(
-		"subj"="factor", 
-		"trialNum"="numeric", 
-		"fixNum"="numeric", 
-		"hemiType"="factor",   
-		"fixX" = "numeric",
-		"fixY" = "numeric",
-		"fixOn" = "numeric",
-		"fixOff" = "numeric",
-		"hemiSide" = "factor",
-		"targPresent" = "factor",
-		"targSide" = "factor",
-		"row" = "numeric",
-		"column" = "numeric",
-		"var"="numeric",
-		"name"="character"))
-names(dat) = c("subj", "trialNum", "fixNum", "hemiType", "fixX", "fixY", "fixOn", "fixOff", "hemiSide", "targPresent", "targSide","row","column","var","name")
+dat <- read.csv("../data/Fix5.txt", header=T, sep="\t")
+names(dat) = c("subNum", "session", "trialNo", "fixNo",	"trialType", "xFix", "yFix", "fixStartTime", "fixEndTime", "hemianopia", "targPresent",	"targSide",	"row", "column", "difficulty", "name")
 levels(dat$targPresent) = c("absent", "present")
-levels(dat$hemiType) = c("Blank","Blank", "Unmodified", "Unmodified")
-levels(dat$hemiSide) = c("left", "right")
+levels(dat$trialType) = c("left","right", "unmodified")
+
 levels(dat$targSide) = c("left", "right", "absent")
-dat$var = as.factor(dat$var)
-levels(dat$var) = c("serial", "parallel")
+dat$difficulty = as.factor(dat$difficulty)
+levels(dat$difficulty) = c("serial", "parallel")
 # make trial unique (just now there is a trial 1 for each block ,etc)
-dat$trial = factor(paste(dat$hemiType, dat$hemiSide, dat$trialNum))
+dat$trial = factor(paste(dat$session, dat$trialType, dat$trialNum))
 
 # refdefine targSide relative to hemiSide
-dat$targSideRel = as.factor(as.character(dat$hemiSide) == as.character(dat$targSide))
+dat$targSideRel = as.factor(as.character(dat$trialType) == as.character(dat$targSide))
 levels(dat$targSideRel) = levels(dat$targSideRel) = c("sighted", "blind", "absent")
-dat$targSideRel[which(dat$targPresent=="absent")] = "absent"
+dat$targSideRel[which(dat$targSide=="absent")] = "absent"
 
 # calcualte fixation durations
-dat$fixDur = dat$fixOff - dat$fixOn
+dat$fixDur = dat$fixEndTime - dat$fixStartTime
 
-# remove unwanted participants
-dat = (dat[!(dat$subj%in% subjectsToRemove),])
-dat$subj = factor(dat$subj)
 
-#
- #we want to filter out all incorrect trials!
+#we want to filter out all incorrect trials!
 
- print("...removing fixation for incorrect trials and fix.dur exceptions")
- accdat = readRDS(file="data/processedRTandAccData.Rda")
- dat$acc = 0
- for (s in levels(dat$subj))
- {
- 	subjDat = dat[which(dat$subj==s),]
+print("...removing fixation for incorrect trials and fix.dur exceptions")
+accdat = readRDS(file="../data/processedRTandAccData.Rda")
+dat$acc = 0
+for (s in levels(dat$subj))
+{
+	subjDat = dat[which(dat$subj==s),]
  	subjDat$trial = factor(subjDat$trial)
  	for (t in levels(subjDat$trial))
  	{
@@ -151,10 +110,10 @@ dat$subj = factor(dat$subj)
  print(paste("... keeping ", 100*mean(dat$acc), "% of fixations"))
  dat = dat[which(dat$acc==1),]
 
-saveRDS(dat,file="data/processedFixData.Rda")
+saveRDS(dat,file="../data/processedFixData.Rda")
  rm(dat)
 
-fixdat = readRDS(file="data/processedFixData.Rda")
+fixdat = readRDS(file="../data/processedFixData.Rda")
 
 
 #
@@ -245,11 +204,11 @@ rm(s, t)
 # 	rm(subjdat)
 # }
  dat = fixdat
-fixdat = data.frame(subj=dat$subj, trial=dat$trial, hemiType=dat$hemiType, hemiSide=dat$hemiSide, targSide=dat$targSideRel, fixNum=dat$fixNum, fixX=dat$fixX, fixY=dat$fixY, fixDur=dat$fixDur, saccAmp=dat$saccAmp, saccAng=dat$saccAng, var=dat$var)
+fixdat = data.frame(subj=dat$subj,subjN=dat$subjN, trial=dat$trial, hemiType=dat$hemiType, hemiSide=dat$hemiSide, targSide=dat$targSideRel, fixNum=dat$fixNum, fixX=dat$fixX, fixY=dat$fixY, fixDur=dat$fixDur, saccAmp=dat$saccAmp, saccAng=dat$saccAng, var=dat$var, session=dat$session)
 
 
-saveRDS(fixdat,file="data/processedFixData.Rda")
-write.table(fixdat, "data/processedFixData.txt", sep=",")
+saveRDS(fixdat,file="../data/processedFixData.Rda")
+write.table(fixdat, "../data/processedFixData.txt", sep=",")
 
 
 
