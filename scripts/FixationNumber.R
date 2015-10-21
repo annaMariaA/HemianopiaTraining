@@ -19,7 +19,7 @@ nbins = 16
 bw = 360/nbins	
 # only look at TA trials
 
-fixdat=fixdat[fixdat$subjN=="M",]
+fixdat=fixdat[fixdat$subjN=="A",]
 
 fixdatSighted=fixdat[fixdat$targSide=="sighted",]
 numFixSighted = aggregate(data=fixdatSighted, fixNum ~ hemiType+var+session+trial, FUN="median")
@@ -29,11 +29,11 @@ fixdatBlind=fixdat[fixdat$targSide=="blind",]
 numFixBlind = aggregate(data=fixdatBlind, fixNum ~ hemiType+var+session+trial, FUN="median")
 numFixBlind = aggregate(data=numFixBlind, fixNum ~ hemiType+var+session, FUN="mean")
 
-nFix = ggplot(numFixSighted, aes(x=session, y=fixNum, fill=var)) + geom_bar(stat="identity", position="dodge") + theme_minimal()
-nFix = nFix + scale_y_continuous(name="Numbe of Fixations") + scale_x_discrete(name="Target Position")+scale_fill_manual(name="Search Difficulty", values=cbPalette) + facet_wrap(~hemiType)
-nFix 
-ggsave("plots/NumFixSightedM.jpg",dpi=600, width=6, height=3)
-write.csv(accdattargPres, "data/accDataTargPres.txt", row.names=F)
+nFix = ggplot(numFixSighted, aes(x=session, y=fixNum, group=var, colour=var, group=supp)) + geom_smooth(method=lm,size=1) + geom_point(position=pd,size=2)
+nFix = nFix + scale_y_continuous(name="Numbe of Fixations") + scale_x_discrete(name="Target Position")+scale_color_manual(name="Search Difficulty", values=cbPalette) + facet_wrap(~hemiType)
+nFix = nFix +theme_minimal()
+ggsave("plots/NumFixSightedA11.jpg",dpi=600, width=6, height=3)
+
 
 # now lets look at RTs... 
 # first we need to filter out incorrect trials

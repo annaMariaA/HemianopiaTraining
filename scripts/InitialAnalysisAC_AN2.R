@@ -1,10 +1,8 @@
 
-# TODO: check subjects to replace!
+# TODO: check subjects to replace
 
-setwd("C:/Users/r02al13/Desktop/LineSegmTraining")
+setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 # here is a list of the subjects we want to exlude from the analysis:
-# 9 isn't really subject
-# 25 has weirdly long fixation durations (median > 2 seconds!?!?!)
 
 #subjectsToRemove = c(7)#accuracy at 0
 # max fixation duration - remove trial if it is exceeded 
@@ -12,17 +10,16 @@ maxFixDur = 2000
 # read in reaction time and acc data:
 # this will allow us to remove fixation data for incorrect trials
 print("Processing RT and Acc data")
-dat <- read.csv("data/RtAcc11.txt", sep="\t")
-names(dat) = c("subj", "trialNum", "hemiType", "hemiSide","variability", "targPresent", "targSide", "RT", "acc","subjectN", "session")
+dat <- read.csv("data/RtAcc5.txt", sep="\t")
+names(dat) = c("subjectN", "session", "trialNum", "hemiType", "hemiSide","variability", "targPresent", "targSide", "RT", "acc")
 dat$targPresent = as.factor(dat$targPresent)
 levels(dat$targPresent) = c("absent", "present")
-levels(dat$hemiType) = c("Blank", "Blank", "Unmodified", "Unmodified")
+levels(dat$hemiType) = c("Blank", "Blank", "Unmodified")
 levels(dat$hemiSide) = c("left", "right")
 dat$var = as.factor(dat$var)
 levels(dat$var) = c("serial", "parallel")
 # remove some subjects
 dat$subjectN = as.factor(dat$subjectN)
-dat$subj= as.factor(dat$subj)
 #dat = (dat[!(dat$subj%in% subjectsToRemove),])
 dat$session = as.factor(dat$session)
 
@@ -34,7 +31,7 @@ dat$targSideRel = as.factor(as.character(dat$hemiSide) == as.character(dat$targS
 levels(dat$targSideRel) = levels(dat$targSideRel) = c("sighted", "blind", "absent")
 dat$targSideRel[which(dat$targPresent=="absent")] = "absent"
 # make a new, tidier version of dataframe only including the stuff we want!
-rtdat = data.frame(subj=dat$subj,subjN=dat$subjectN, trial=dat$trial, hemiType=dat$hemiType, hemiSide=dat$hemiSide, targSide=dat$targSideRel, RT=dat$RT, acc=dat$acc, var=dat$var, session=dat$session)
+rtdat = data.frame(subjN=dat$subjectN, trial=dat$trial, hemiType=dat$hemiType, hemiSide=dat$hemiSide, targSide=dat$targSideRel, RT=dat$RT, acc=dat$acc, var=dat$var, session=dat$session)
 # we don't want to be looking at RTs for incorrect trials
 rtdat$RT[rtdat$acc==0] = NaN
 # save!!!
