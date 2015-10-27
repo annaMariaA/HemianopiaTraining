@@ -1,7 +1,7 @@
 library(dplyr)
 # TODO: check subjects to replace
 
-# setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
+setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 # here is a list of the subjects we want to exlude from the analysis:
 
 #subjectsToRemove = c(7)#accuracy at 0
@@ -10,7 +10,7 @@ maxFixDur = 2000
 # read in reaction time and acc data:
 # this will allow us to remove fixation data for incorrect trials
 print("Processing RT and Acc data")
-dat <- read.csv("../data/RtAcc5.txt", sep="\t")
+dat <- read.csv("data/RtAcc10.txt", sep="\t")
 names(dat) = c("subjectN", "session", "trialNum", "trialType", "hemiSide","variability", "targPresent", "targSide", "RT", "acc")
 dat$targPresent = as.factor(dat$targPresent)
 levels(dat$targPresent) = c("absent", "present")
@@ -35,7 +35,7 @@ rtdat = data.frame(subjN=dat$subjectN, trial=dat$trial, trialType=dat$trialType,
 # we don't want to be looking at RTs for incorrect trials
 rtdat$RT[rtdat$acc==0] = NaN
 # save!!!
-saveRDS(rtdat,file="../data/processedRTandAccData.Rda")
+saveRDS(rtdat,file="data/processedRTandAccData.Rda")
 
 # remove data for now
 rm(dat, rtdat)
@@ -65,7 +65,7 @@ saccInfo <- function(trialDat)
 # now read in fixation data
 #
 print("Processing Fix data...")
-dat <- read.csv("../data/Fix5.txt", header=T, sep="\t")
+dat <- read.csv("data/Fix10.txt", header=T, sep="\t")
 names(dat) = c("subj", "session", "trialNo", "fixNum",	"trialType", "xFix", "yFix", "fixStartTime", "fixEndTime", "hemianopia", "targPresent",	"targSide",	"row", "column", "difficulty", "name")
 levels(dat$targPresent) = c("absent", "present")
 levels(dat$trialType) = c("left","right", "unmodified")
@@ -88,7 +88,7 @@ dat$fixDur = dat$fixEndTime - dat$fixStartTime
 #we want to filter out all incorrect trials!
 
 print("...removing fixation for incorrect trials and fix.dur exceptions")
-accdat = readRDS(file="../data/processedRTandAccData.Rda")
+accdat = readRDS(file="data/processedRTandAccData.Rda")
 dat$acc = 0
 for (s in levels(dat$subj))
 {
@@ -107,10 +107,10 @@ for (s in levels(dat$subj))
  print(paste("... keeping ", 100*mean(dat$acc), "% of fixations"))
  dat = filter(dat, acc==1)
 
-saveRDS(dat,file="../data/processedFixData.Rda")
+saveRDS(dat,file="data/processedFixData.Rda")
  rm(dat)
 
-fixdat = readRDS(file="../data/processedFixData.Rda")
+fixdat = readRDS(file="data/processedFixData.Rda")
 
 
 #
@@ -167,8 +167,8 @@ rm(s, t)
 fixdat = data.frame(subj=dat$subj,  session=dat$session, trial=dat$trial, trialType=dat$trialType, targSide=dat$targSideRel, fixNum=dat$fixNum, xFix=dat$xFix, yFix=dat$yFix, fixDur=dat$fixDur, saccAmp=dat$saccAmp, saccAng=dat$saccAng, difficulty=dat$difficulty)
 
 
-saveRDS(fixdat,file="../data/processedFixData.Rda")
-write.table(fixdat, "../data/processedFixData.txt", sep=",")
+saveRDS(fixdat,file="data/processedFixData.Rda")
+write.table(fixdat, "data/processedFixData.txt", sep=",")
 
 
 
