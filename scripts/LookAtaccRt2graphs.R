@@ -11,6 +11,7 @@ library(dplyr)
 library(boot)
 library(gridExtra)
 library(binom)
+library(lme4)
 
 get_legend<-function(myggplot){
   tmp <- ggplot_gtable(ggplot_build(myggplot))
@@ -35,12 +36,21 @@ accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
 ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
 write.csv(accdattargPres, "data/accDataTargPres.txt", row.names=F)
 
+
+
+
+
+
+
+
+
+m = glmer(data=rtdat, acc ~ session * trialType * targSide + (1|subjN), family="binomial")
+
+
 # now lets look at RTs... 
 
 # first we need to filter out incorrect trials
 rtdat = rtdat[which(rtdat$acc==1),]
-
-
 
 
 
@@ -51,7 +61,7 @@ aggRtData = (rtdat
   %>% group_by(subjN, session, trialType, targSide) 
     %>% summarise(
      nTrials=length(RT),
-     rt=median(RT),      
+     rt=mean(RT),      
      lower = quantile(RT, 0.25),
      upper = quantile(RT, 0.75)))
 
@@ -69,9 +79,20 @@ rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seco
 ggsave("../plots/RT2.jpg",dpi=600, width=10, height=5)
 
 
-library(lme4)
+
+
+
+# model median reaction times
+m = lmer(data=aggRtData, scale(log(rt)) ~ session*targSide*trialType + (session+targSide|subjN), control=lmerControl(optimizer="bobyqa"))
+
+
 rtdat$session = as.numeric(rtdat$session)
-m = lmer(data=rtdat, scale(log(RT)) ~ session*targSide*trialType + (session+targSide+trialType|subjN))
+m = lmer(data=rtdat, scale(log(RT)) ~ session*targSide*trialType + (session+targSide|subjN), control=lmerControl(optimizer="bobyqa"))
+
+
+m = lmer(data=rtdat, scale(log(RT)) ~ session*targSide*trialType - session:targSide:trialType - session:targSide - session:trialType + (session+targSide|subjN), control=lmerControl(optimizer="bobyqa"))
+
+
 
 
 write.csv(rtdat2, "data/RTdata.txt", row.names=F)
