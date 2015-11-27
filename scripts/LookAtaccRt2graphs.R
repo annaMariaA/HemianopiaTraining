@@ -30,22 +30,23 @@ aggAcc = (rtdat
      upper = binom.confint(acc*nTrials,nTrials, method='wilson')$upper))
 
 accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))
-accplt = accplt + geom_point() + geom_errorbar() + geom_path()
+accplt = accplt + geom_point() + geom_errorbar() 
+accplt = accplt + geom_smooth(method="glm", family="binomial")
 accplt = accplt + facet_grid(trialType~subjN)
 accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
 ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
-write.csv(accdattargPres, "data/accDataTargPres.txt", row.names=F)
 
 
+rtdat$session = as.numeric(rtdat$session)
 
-
-
-
-
-
-
-m = glmer(data=rtdat, acc ~ session * trialType * targSide + (1|subjN), family="binomial")
-
+m1 = glmer(data=rtdat, 
+	acc ~ session * trialType * targSide 
+	+ (session+trialType+targSide|subjN), 
+	family="binomial",
+	control=glmerControl(optimizer="bobyqa"))
+m2 = update(m1,~.-session:trialType:targSide)
+m3 = update(m2,~.-session:trialType)
+m4 = update(m3,~.-session:targSide)
 
 # now lets look at RTs... 
 
@@ -61,37 +62,28 @@ aggRtData = (rtdat
   %>% group_by(subjN, session, trialType, targSide) 
     %>% summarise(
      nTrials=length(RT),
-     rt=mean(RT),      
+     rt=median((RT)),      
      lower = quantile(RT, 0.25),
      upper = quantile(RT, 0.75)))
 
 
 rtplt = ggplot(aggRtData, aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))
-rtplt = rtplt + geom_point() + geom_errorbar() + geom_smooth(method="lm")
+rtplt = rtplt + geom_point()+ geom_smooth(method="lm") #+ geom_errorbar() 
 rtplt = rtplt + facet_grid(trialType~subjN, scales="free_y")
 rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
 ggsave("../plots/RT.jpg",dpi=600, width=10, height=5)
-
-rtplt = ggplot(rtdat, aes(x=session, y=RT, colour=targSide, group=targSide))
-rtplt = rtplt + geom_point()  + geom_smooth(method="lm")
-rtplt = rtplt + facet_grid(trialType~subjN, scales="free_y")
-rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
-ggsave("../plots/RT2.jpg",dpi=600, width=10, height=5)
-
 
 
 
 
 # model median reaction times
-m = lmer(data=aggRtData, scale(log(rt)) ~ session*targSide*trialType + (session+targSide|subjN), control=lmerControl(optimizer="bobyqa"))
-
-
-rtdat$session = as.numeric(rtdat$session)
-m = lmer(data=rtdat, scale(log(RT)) ~ session*targSide*trialType + (session+targSide|subjN), control=lmerControl(optimizer="bobyqa"))
-
-
-m = lmer(data=rtdat, scale(log(RT)) ~ session*targSide*trialType - session:targSide:trialType - session:targSide - session:trialType + (session+targSide|subjN), control=lmerControl(optimizer="bobyqa"))
-
+m1 = lmer(data=rtdat, 
+	scale(log(RT)) ~ session*targSide*trialType + (session+targSide+trialType|subjN), 
+	control=lmerControl(optimizer="bobyqa"))
+m2 = update(m1, ~.-session:targSide:trialType)
+m3 = update(m2, ~.-session:targSide)
+m4 = update(m3, ~.-session:trialType)
+m5 = update(m4, ~.-session)
 
 
 
