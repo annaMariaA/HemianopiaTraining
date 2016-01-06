@@ -1,5 +1,5 @@
 #setwd("E:/Anna Desktop/SimulatedHemLineSegm")
-#setwd("C:/Users/r02al13/Desktop/LineSegmEasyDiff")
+
 rtdat = readRDS(file="../data/processedRTandAccData.Rda")
 
 cbPalette <- c("#E69F00", "#56B4E9")
@@ -48,22 +48,23 @@ m2 = update(m1,~.-session:trialType:targSide:var)
 m3 = update(m2,~.-session:targSide:var)
 m4 = update(m3,~.-session:trialType:targSide)
 
+# > Anova(m4)
 # Analysis of Deviance Table (Type II Wald chisquare tests)
 
 # Response: acc
 #                          Chisq Df Pr(>Chisq)    
-# session                53.3232  1  2.829e-13 ***
-# trialType              45.5134  1  1.516e-11 ***
-# targSide               33.3951  2  5.602e-08 ***
-# var                    42.9674  1  5.566e-11 ***
-# session:trialType       0.0567  1   0.811725    
-# session:targSide       21.2842  2  2.389e-05 ***
-# trialType:targSide     22.2515  2  1.473e-05 ***
-# session:var             5.4223  1   0.019882 *  
-# trialType:var           1.5300  1   0.216114    
-# targSide:var            3.2880  2   0.193202    
-# session:trialType:var   3.2002  1   0.073628 .  
-# trialType:targSide:var 10.3113  2   0.005767 **
+# session                50.9665  1  9.395e-13 ***
+# trialType              46.8036  2  6.866e-11 ***
+# targSide               32.7537  2  7.720e-08 ***
+# var                    42.8988  1  5.765e-11 ***
+# session:trialType       0.1983  2  0.9055885    
+# session:targSide       21.6161  2  2.024e-05 ***
+# trialType:targSide     26.7011  4  2.285e-05 ***
+# session:var             5.4585  1  0.0194736 *  
+# trialType:var           2.8877  2  0.2360211    
+# targSide:var            2.6804  2  0.2617981    
+# session:trialType:var   3.2985  2  0.1921973    
+# trialType:targSide:var 19.2913  4  0.0006888 ***
 
 
 # now lets look at RTs... 
