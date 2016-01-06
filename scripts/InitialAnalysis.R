@@ -39,7 +39,7 @@ levels(dat$targSide) = c("left", "right", "absent")
 dat$targSideRel = as.factor(as.character(dat$hemiSide) == as.character(dat$targSide))
 levels(dat$targSideRel) = levels(dat$targSideRel) = c("sighted", "blind", "absent")
 dat$targSideRel[which(dat$targPresent=="absent")] = "absent"
-levels(dat$trialType) = c("blank", "blank", "unmodified")
+
 # make a new, tidier version of dataframe only including the stuff we want!
 rtdat = data.frame(subjN=dat$subjectN, session=dat$session, trial=dat$trial, trialType=dat$trialType, targSide=dat$targSideRel, RT=dat$RT, acc=dat$acc, var=dat$var)
 # we don't want to be looking at RTs for incorrect trials
@@ -90,7 +90,7 @@ dat$trial = factor(paste(dat$session, dat$trialType, dat$trialNo))
 dat$targSideRel = as.factor(as.character(dat$trialType) == as.character(dat$targSide))
 levels(dat$targSideRel) = levels(dat$targSideRel) = c("sighted", "blind", "absent")
 dat$targSideRel[which(dat$targSide=="absent")] = "absent"
-
+levels(dat$trialType) = c("blank", "blank", "unmodified")
 # calcualte fixation durations
 dat$fixDur = dat$fixEndTime - dat$fixStartTime
 
@@ -176,6 +176,7 @@ rm(s, t)
  dat = fixdat
 fixdat = data.frame(subj=dat$subj,  session=dat$session, trial=dat$trial, trialType=dat$trialType, targSide=dat$targSideRel, fixNum=dat$fixNum, xFix=dat$xFix, yFix=dat$yFix, fixDur=dat$fixDur, saccAmp=dat$saccAmp, saccAng=dat$saccAng, difficulty=dat$difficulty)
 
+levels(dat$trialType) = c("blank", "blank", "unmodified")
 
 saveRDS(fixdat,file="../data/processedFixData.Rda")
 write.table(fixdat, "../data/processedFixData.txt", sep=",")
