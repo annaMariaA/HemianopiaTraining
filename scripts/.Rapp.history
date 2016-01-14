@@ -1,0 +1,594 @@
+install.packages("lme4")
+install.packeges("car")
+install.packages("car")
+install.packages("Hmci")
+install.packages("Hmisc")
+install.packages("mnormt")
+install.packages("psyhpy")
+install.packages("psyphy")
+install.packages("plyr")
+install.packages("pdyphy")
+install.packages("phyphy")
+install.packages("psyphy")
+q()
+install.packages("psyphy")
+setInternet2(use = TRUE)
+install.packages("psyphy",repos="http://R-Forge.R-project.org", type="source")
+install.packages("psyphy")
+install.packages("ggplot2")
+internet2
+install.packages("httr")
+capabilities()["libcurl"]
+setInternet2(TRUE)
+install.packages("httr")
+install.packages("swirl", repos="http://cran.rstudio.com/", dependencies=TRUE)
+install.packages("nnet", repos="http://cran.rstudio.com/", dependencies=TRUE)
+install.packages("ggplot2")
+install.packages("ggplot2", dependencies=TRUE)
+install.packages("stringr")
+2+2
+library(ggplot2)
+library(ggplot2)#
+library(dplyr)#
+#
+people = 11#c(1,2,3,4,5,11)#
+dat = data.frame()#
+for (person in people)#
+{#
+    pdat = rbind(read.csv(paste('../results/', person, 'results.txt', sep='')),read.csv('../results/2results.txt')) #
+    dat = rbind(dat, pdat)#
+    rm(pdat)#
+}#
+# tell R that person and targetPresent are categorical factors#
+dat$person = as.factor(dat$person)#
+dat$targetPresent = as.factor(dat$targetPresent)#
+levels(dat$block) = c("coloured", "uncoloured")#
+#
+# remove response = 3 (timed out?)#
+dat = filter(dat, response!=3)#
+#
+# display number of incorrect trials - should be low!#
+print(paste("misses:", 100*nrow(filter(dat, targetPresent==1, response==-1))/nrow(dat)))#
+print(paste("false pos:", 100*nrow(filter(dat, targetPresent==0, response==1))/nrow(dat)))#
+#
+# remove incorrect trials from data#
+dat = rbind(filter(dat, targetPresent==1, response==1), filter(dat, targetPresent==0, response==-1))#
+#
+dat$trialNumber = as.factor(dat$trialNumber)#
+dat = filter(dat, block=='coloured')#
+#
+# dat$responseTime = log(dat$responseTime)#
+# compute mean of median and 95% CI#
+aggData = (dat #
+  %>% group_by(person, block, visualise, trialNumber) #
+    %>% summarise(#
+     nTrials = length(responseTime),#
+     meanRT     = mean(responseTime),#
+     medianRT   = median(responseTime), #
+     stddev     = sd(responseTime),#
+     stderr=stddev/sqrt(nTrials),#
+     lower=meanRT-1.96*stderr,#
+     upper=meanRT+1.96*stderr))#
+#
+# plot! #
+#
+plt = ggplot(aggData, aes(x=trialNumber, y=meanRT, ymin=lower, ymax=upper, colour=visualise, group=visualise))#
+plt = plt + geom_path() + geom_errorbar()#
+plt = plt + geom_path(aes(y=medianRT), linetype=2)#
+plt = plt + facet_wrap(~person, scales='free_y') + theme_bw()#
+plt = plt +  scale_colour_brewer(palette="Set1")#
+ggsave("pilotResults.pdf", height=4, width=8)#
+plt#
+# # sample to get CI estimates #
+# ii = 0#
+# for (n in seq(6,72,6))#
+# {#
+#     ii = ii + 1#
+# sdat = dat[sample(x=nrow(dat), size=n),]#
+# m[ii] = mean(sdat$responseTime)#
+# stderr[ii] = sd(sdat$responseTime)/sqrt(n)#
+#
+# }#
+# plt = ggplot(data.frame(m = m, n=seq(6,72,6), lower=m-1.96*stderr, upper=m+1.96*stderr), aes(x=n, y=m, ymin=lower, ymax=upper))#
+# plt = plt + geom_errorbar() + geom_point() + scale_y_continuous(limits=c(0.3,0.7))#
+# plt
+install.packages("dplyr")
+library(lme4)
+library(ggplot2)#
+library(lme4)#
+library(car)#
+people = c(1,2,3,4,5,6,7,8,9,11)#
+alldat = data.frame(participantNumber=character(), trialNum=numeric(), TargetPresent=numeric(), beta=numeric(), seed=numeric(), r=numeric(), phi=numeric(), response=numeric()) #
+for (person in people)#
+{#
+    dat = read.csv(paste("../results/ac_", person, "_td.txt", sep=""))#
+    if (person == 7)#
+    {#
+        # there's a bug in the data causing participantNumber to = 6 for particiapnt 7!#
+        dat$participantNumber = 7#
+    }#
+    if (person == 4)#
+    {#
+        # they got their numbers the wrong way around#
+        dat$respose = 1-dat$respose#
+    }#
+#
+    names(dat)[8] = "response"#
+    alldat = rbind(alldat, dat)#
+}#
+#
+visdeg = 60*tan(54.2/57)/(1920*pi)#
+#
+alldat$beta <- factor(as.numeric(alldat$beta), labels =c("rough", "medium", "smooth"))#
+alldat$phi <- pi/180 * alldat$phi#
+alldat$r <- alldat$r * visdeg#
+alldat$x <- alldat$r*sin(alldat$phi)#
+alldat$y <- alldat$r*cos(alldat$phi)#
+alldat$x2 <- alldat$x^2#
+alldat$y2 <- alldat$y^2#
+alldat$participantNumber = as.factor(alldat$participantNumber)#
+alldat$TargetPresent = as.factor(alldat$TargetPresent)#
+alldat$rejTrial = as.numeric(alldat$response == -1)#
+summary((aggregate(data=alldat, rejTrial~participantNumber, FUN=mean)))#
+alldat = alldat[-which(alldat$response==-1),]#
+alldat = alldat[-which(alldat$response==2),]#
+accdat = aggregate(data=alldat, response~participantNumber+beta+TargetPresent, FUN=mean)#
+summary(aggregate(data=alldat[which(alldat$TargetPresent==0),], response~participantNumber, FUN=mean))#
+levels(accdat$TargetPresent) = c("target absent", "target present")#
+accdat$response[which(accdat$TargetPresent=="target absent")] = 1- accdat$response[which(accdat$TargetPresent=="target absent")] #
+fpplt = ggplot(accdat, aes(x=participantNumber, y=response, fill=beta)) + geom_bar(stat="identity", position=position_dodge())+facet_wrap(~TargetPresent)#
+fpplt = fpplt + scale_y_continuous(name="accuracy",breaks=c(seq(0,1,0.1))) + theme_bw()#
+fpplt = fpplt + scale_x_discrete(name="participant ID")#
+ggsave("targDetFalsePositive.pdf", width=10, height=4)#
+#
+targPres = subset(alldat, TargetPresent==1 & response!=-1 & response!=2)#
+#
+targPres2 <- aggregate(response ~ participantNumber+ beta+r, targPres, FUN="mean")#
+tmp <- aggregate(response ~ beta+r, targPres, FUN="var")#
+targPres2$stderr = sqrt(tmp$response/9)#
+plt1 <- ggplot(targPres2, aes(x=r, y=response, colour=beta)) + geom_smooth(method="glm", family="binomial", se=F) + geom_point(position = position_jitter(w = 0.15, h = 0.0))#
+plt1 <- plt1 + scale_y_continuous(name="p(target detected)")  +scale_x_continuous(name="eccentricity (degrees of visual angle)") + theme_bw()#
+plt1#
+ggsave("targDetModelEccOnly.pdf", width=10, height=5)#
+#
+plt2 <- ggplot(targPres2, aes(x=r, y=response, colour=beta)) + geom_smooth(method="glm", family="binomial", se=F) + geom_point(position = position_jitter(w = 0.15, h = 0.0))#
+plt2 <- plt2 + scale_y_continuous(name="p(target detected)")  +scale_x_continuous(name="eccentricity (degrees of visual angle)") + theme_bw()#
+plt2 = plt2 + facet_wrap(~participantNumber)#
+ggsave("eccAccPltByPerson.pdf")#
+#
+m2 <- glm(data=targPres, response ~ beta * (x2+y2), family="binomial")
+setwd("Documents/HemianopiaTraining/scripts/")
+#setwd("E:/Anna Desktop/SimulatedHemLineSegm")#
+#
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")#
+#
+cbPalette <- c("#E69F00", "#56B4E9")#
+#
+library(lme4)#
+library(ggplot2)#
+library(scales)#
+library(dplyr)#
+library(boot)#
+library(gridExtra)#
+library(binom)#
+get_legend<-function(myggplot){#
+  tmp <- ggplot_gtable(ggplot_build(myggplot))#
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")#
+  legend <- tmp$grobs[[leg]]#
+  return(legend)#
+}#
+#
+# let us first look at accuracy for target present and absent#
+aggAcc = (rtdat#
+  %>% group_by(subjN, session, trialType, targSide, var) #
+    %>% summarise(#
+     nTrials=length(RT),#
+     acc=mean(acc),      #
+     lower = binom.confint(acc*nTrials,nTrials, method='wilson')$lower,#
+     upper = binom.confint(acc*nTrials,nTrials, method='wilson')$upper))#
+#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point() + geom_errorbar() #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~subjN)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)#
+rtdat$session = as.numeric(rtdat$session)#
+#
+m1 = glmer(data=rtdat, #
+    acc ~ session * trialType * targSide * var #
+    + (session+trialType+targSide+var|subjN), #
+    family="binomial",#
+    control=glmerControl(optimizer="bobyqa", optCtrl = list(maxfun=100000)))#
+m2 = update(m1,~.-session:trialType:targSide:var)#
+m3 = update(m2,~.-session:targSide:var)#
+m4 = update(m3,~.-session:trialType:targSide)
+summary(m4)
+Anova(m4)
+library(car)
+Anova(m4)
+runif(10)
+plot(dat)
+dat = data.frame(x=runif(100), y=2*runif(100))
+plot(dat)
+pr.comp(dat)
+princomps(dat)
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=runif(100), y=2*runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=runif(100), y=3*runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=10*runif(100), y=30runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=10*runif(100), y=30*runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=1*runif(100), y=3*runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=1*runif(100), y=3*runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+# make some pretend data#
+dat = data.frame(x=1*runif(100), y=3*runif(100))#
+#
+plot(dat)#
+#
+princomp(dat)
+str(princomp(dat))
+str(princomp(dat))
+princomp(dat)$sdev
+princomp(dat)$sdev[1]
+princomp(dat)$sdev[1]$value
+princomp(dat)$sdev[1] * princomp(dat)$sdev[2]
+pcaWeights = princomp(dat)$sdev
+pcaWeights
+pcaWeights[1]
+pcaWeights[1] * pcaWeights[2]
+pcaWeights[[1]] * pcaWeights[[2]]
+# make some pretend data#
+dat = data.frame(x=1*runif(100), y=3*runif(100))#
+#
+plot(dat)#
+#
+pcaWeights = princomp(dat)$sdev#
+pcaWeights[[1]] * pcaWeights[[2]]
+# make some pretend data#
+#
+z = 10#
+dat = data.frame(x=z*runif(100), y=3*z*runif(100))#
+#
+plot(dat)#
+#
+pcaWeights = princomp(dat)$sdev#
+pcaWeights[[1]] * pcaWeights[[2]]
+z = 2
+# make some pretend data#
+#
+z = 2#
+dat = data.frame(x=z*runif(100), y=3*z*runif(100))#
+#
+plot(dat)#
+#
+pcaWeights = princomp(dat)$sdev#
+pcaWeights[[1]] * pcaWeights[[2]]
+# make some pretend data#
+#
+z = 4#
+dat = data.frame(x=z*runif(100), y=3*z*runif(100))#
+#
+plot(dat)#
+#
+pcaWeights = princomp(dat)$sdev#
+pcaWeights[[1]] * pcaWeights[[2]]
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+#setwd("E:/Anna Desktop/SimulatedHemLineSegm")#
+#
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")#
+#
+cbPalette <- c("#E69F00", "#56B4E9")#
+#
+library(lme4)#
+library(ggplot2)#
+library(scales)#
+library(dplyr)#
+library(boot)#
+library(gridExtra)#
+library(binom)#
+get_legend<-function(myggplot){#
+  tmp <- ggplot_gtable(ggplot_build(myggplot))#
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")#
+  legend <- tmp$grobs[[leg]]#
+  return(legend)#
+}#
+#
+# let us first look at accuracy for target present and absent#
+aggAcc = (rtdat#
+  %>% group_by(subjN, session, trialType, targSide, var) #
+    %>% summarise(#
+     nTrials=length(RT),#
+     acc=mean(acc),      #
+     lower = binom.confint(acc*nTrials,nTrials, method='wilson')$lower,#
+     upper = binom.confint(acc*nTrials,nTrials, method='wilson')$upper))#
+#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point() + geom_errorbar() #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~subjN)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+warnings()
+accplt
+aggAcc
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point() + geom_errorbar() #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point() + geom_errorbar() + geom_jitter(width = 0.1, height = 0)#
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+accplt
+pd <- position_dodge(width = 0.1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar() #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+accplt
+pd <- position_dodge(width = 0.5)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd, width=0.1) + geom_errorbar() #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+accplt
+pd <- position_dodge(width = 0.5)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd, width=0.1) + geom_errorbar(position = pd, width=0.1) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 3)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 30)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 30)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(aes(shape=subjN), position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=subjN, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+accplt
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=subjN+targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+<- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+<- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_jitter(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+accplt = accplt + geom_point(aes(shape=subjN), position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN, group=targSide))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide, shape=subjN))#
+accplt = accplt + geom_point(position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(group=subjN, position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN), position = pd) + geom_errorbar(position = pd, width=0.25) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN), position = pd) + geom_errorbar(aes(group=subjN), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN, colour=targSide), position = pd) + geom_errorbar(aes(group=subjN, colour=targSide), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 1)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+pd <- position_dodge(width = 0.5)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
+accplt
+ggsave("../plots/accuracy.jpg",dpi=600, width=10, height=5)
+ggsave("../plots/accuracy.jpg",dpi=600, width=16, height=8)
+accAgg
+aggAcc
+# rt for target present and absent#
+aggRtData = (rtdat#
+  %>% group_by(subjN, session, trialType, targSide, var) #
+    %>% summarise(#
+     nTrials=length(RT),#
+     rt=median(RT, na.rm=T),      #
+     lower = quantile(RT, 0.25, na.rm=T),#
+     upper = quantile(RT, 0.75, na.rm=T)))
+aggRtData
+rtplt = ggplot(filter(aggRtData, var=='serial'), aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm") + geom_errorbar() #
+rtplt = rtplt + facet_grid(trialType~var, scales="free_y")#
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
+rtplt
+rtplt = ggplot(filter(aggRtData, var=='serial'), aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm") + geom_errorbar(width=0.5) #
+rtplt = rtplt + facet_grid(trialType~var, scales="free_y")#
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")#
+ggsave("../plots/RTserial.pdf",dpi=600, width=10, height=5)
+rtplt
+rtplt = ggplot(filter(aggRtData, var=='serial'), aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm") + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+rtplt = rtplt + facet_grid(trialType~var, scales="free_y")#
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
+rtplt
+ggsave("../plots/accuracy.jpg", width=16, height=8)
+pd <- position_dodge(width = 0.5)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.jpg", width=16, height=8)
+rtplt = ggplot(filter(aggRtData, var=='serial'), aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm", ) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+rtplt = rtplt + facet_grid(trialType~var, scales="free_y")#
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")#
+ggsave("../plots/RTserial.pdf", width=16, height=8)
+summary(rtdat)
+summary(aggRtData)
+rtplt = ggplot(aggRtData, aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))#
+rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm", ) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+rtplt = rtplt + facet_grid(trialType~var, scales="free_y")#
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")#
+ggsave("../plots/RTserial.pdf", width=16, height=8)
+pd <- position_dodge(width = 0.5)#
+accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))#
+accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) #
+accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomial", se=F)#
+accplt = accplt + facet_grid(trialType~var)#
+accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")#
+ggsave("../plots/accuracy.pdf", width=16, height=8)
