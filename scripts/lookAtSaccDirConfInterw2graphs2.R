@@ -1,11 +1,15 @@
-setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
-fixdat = readRDS(file="data/processedFixData.Rda")
-cbPalette <- c("#56B4E9", "#E69F00", "#0072B2", "#D55E00", "#CC79A7")
+#setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
+setwd("Documents/HemianopiaTraining/scripts/")
+
 library(lme4)
 library(ggplot2)
 library(scales)
-library(bear)
-library(boot)
+# library(bear)
+# library(boot)
+
+fixdat = readRDS(file="../data/processedFixData.Rda")
+cbPalette <- c("#56B4E9", "#E69F00", "#0072B2", "#D55E00", "#CC79A7")
+
 
 nbins = 16
 bw = 360/nbins	
@@ -17,7 +21,6 @@ fixdat$saccAng = (180/pi) * (fixdat$saccAng ) + 180
 fixdat$saccAng = ((fixdat$saccAng) %% 360)
 
 
-library(ggplot2)
 
 # first look at amplitude
 ampplot = ggplot(fixdat, aes(x=saccAmp)) + geom_density() + facet_grid(.~trialType)
