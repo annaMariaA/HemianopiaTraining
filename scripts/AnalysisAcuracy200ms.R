@@ -4,17 +4,17 @@ library(scales)
 library(bear)
 library(boot)
 library(gridExtra)
-
+library(Rmisc)
 cbPalette <- c("#E69F00", "#56B4E9")
 
 # TODO: check subjects to replace!
 setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 # here is a list of the subjects we want to exlude from the analysis:
-
+subjectsToRemove = 3
 
 # read in acc data:
 print("Processing Acc data")
-dat <- read.csv("data/Acc10.txt", sep="\t")
+dat <- read.csv("data/Acc20.txt", sep="\t")
 names(dat) = c("subj","session", "trialNum","difficulty", "targPresent", "targSide", "acc")
 dat$targPresent = as.factor(dat$targPresent)
 levels(dat$targPresent) = c("absent", "present")
@@ -23,12 +23,12 @@ dat$subj = as.factor(dat$subj)
 dat$session = as.factor(dat$session)
 dat$difficulty= as.factor(dat$difficulty)
 levels(dat$difficulty) = c("hetero", "homo")
-#dat = (dat[!(dat$subj%in% subjectsToRemove),])
+dat = (dat[!(dat$subj%in% subjectsToRemove),])
 dat$subj = factor(dat$subj)
 
 # save!!!
 saveRDS(dat,file="data/AccData200ms.Rda")
-dat = dat[which(dat$trial>10),]
+dat = dat[which(dat$trial>9),]
 accdat  = aggregate(data=dat, acc ~ subj + difficulty + targPresent + session, FUN="mean")
 
 errorbar <- summarySEwithin(accdat, measurevar="acc", withinvars=c("targPresent","difficulty","session"), idvar="subj")
