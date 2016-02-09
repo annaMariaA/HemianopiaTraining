@@ -23,6 +23,10 @@ dat$subj = as.factor(dat$subj)
 dat$session = as.factor(dat$session)
 dat$difficulty= as.factor(dat$difficulty)
 levels(dat$difficulty) = c("hetero", "homo")
+dat$session= as.factor(dat$session)
+levels(dat$session) = c("Monday", "Friday")
+
+
 dat = (dat[!(dat$subj%in% subjectsToRemove),])
 dat$subj = factor(dat$subj)
 
