@@ -1,7 +1,7 @@
 #setwd("E:/Anna Desktop/SimulatedHemLineSegm")
 
-rtdat = readRDS(file="../data/processedRTandAccData.Rda")
-
+#rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+rtdat = readRDS(file="data/processedRTandAccData.Rda")
 cbPalette <- c("#E69F00", "#56B4E9")
 
 library(lme4)
@@ -19,6 +19,15 @@ get_legend<-function(myggplot){
   legend <- tmp$grobs[[leg]]
   return(legend)
 }
+levels(rtdat$trialType) = c("blind","blind", "unmodified")
+
+accdat  = aggregate(data=rtdat, acc ~ subjN + session + trialType + targSide + var, FUN="mean")
+write.csv(accdat, "data/accData.txt", row.names=F)
+
+rtdat = rtdat[which(rtdat$acc==1),]
+RT  = aggregate(data=rtdat, RT ~ subjN + session + trialType + targSide + var, FUN="median")
+write.csv(RT, "data/rtData.txt", row.names=F)
+
 
 # let us first look at accuracy for target present and absent
 aggAcc = (rtdat
@@ -35,8 +44,8 @@ accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_er
 accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomial", se=F)
 accplt = accplt + facet_grid(trialType~var)
 accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
-ggsave("../plots/accuracy.pdf", width=16, height=8)
-
+#ggsave("../plots/accuracy.pdf", width=16, height=8)
+ggsave("plots/accuracy.pdf", width=16, height=8)
 
 rtdat$session = as.numeric(rtdat$session)
 
@@ -89,8 +98,8 @@ rtplt = ggplot(aggRtData, aes(x=session, y=rt, ymin=lower, ymax=upper, colour=ta
 rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm", ) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) 
 rtplt = rtplt + facet_grid(trialType~var, scales="free_y")
 rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
-ggsave("../plots/RTserial.pdf", width=16, height=8)
-
+#ggsave("../plots/RTserial.pdf", width=16, height=8)
+ggsave("plots/RTserial.pdf", width=16, height=8)
 
 
 
