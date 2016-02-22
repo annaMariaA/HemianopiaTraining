@@ -1,6 +1,7 @@
 "subj","difficulty","targPresent","session","acc"
 "1","hetero","absent","Monday",0.764705882352941
 "2","hetero","absent","Monday",0.315789473684211
+"3","hetero","absent","Monday",0.666666666666667
 "4","hetero","absent","Monday",0.888888888888889
 "5","hetero","absent","Monday",0.85
 "6","hetero","absent","Monday",0.666666666666667
@@ -17,6 +18,7 @@
 "20","hetero","absent","Monday",0.45
 "1","homo","absent","Monday",0.789473684210526
 "2","homo","absent","Monday",0.764705882352941
+"3","homo","absent","Monday",0.666666666666667
 "4","homo","absent","Monday",1
 "5","homo","absent","Monday",0.8125
 "6","homo","absent","Monday",1
@@ -33,6 +35,7 @@
 "20","homo","absent","Monday",0.75
 "1","hetero","present","Monday",0.666666666666667
 "2","hetero","present","Monday",0.894736842105263
+"3","hetero","present","Monday",0.5
 "4","hetero","present","Monday",0.277777777777778
 "5","hetero","present","Monday",0.333333333333333
 "6","hetero","present","Monday",0.55
@@ -49,6 +52,7 @@
 "20","hetero","present","Monday",0.526315789473684
 "1","homo","present","Monday",1
 "2","homo","present","Monday",0.6875
+"3","homo","present","Monday",0.117647058823529
 "4","homo","present","Monday",1
 "5","homo","present","Monday",1
 "6","homo","present","Monday",0.944444444444444
@@ -65,6 +69,7 @@
 "20","homo","present","Monday",1
 "1","hetero","absent","Friday",0.666666666666667
 "2","hetero","absent","Friday",0.578947368421053
+"3","hetero","absent","Friday",0.368421052631579
 "4","hetero","absent","Friday",0.842105263157895
 "5","hetero","absent","Friday",0.789473684210526
 "6","hetero","absent","Friday",0.941176470588235
@@ -81,6 +86,7 @@
 "20","hetero","absent","Friday",0.944444444444444
 "1","homo","absent","Friday",1
 "2","homo","absent","Friday",0.941176470588235
+"3","homo","absent","Friday",0.777777777777778
 "4","homo","absent","Friday",0.944444444444444
 "5","homo","absent","Friday",1
 "6","homo","absent","Friday",1
@@ -97,6 +103,7 @@
 "20","homo","absent","Friday",0.941176470588235
 "1","hetero","present","Friday",1
 "2","hetero","present","Friday",0.882352941176471
+"3","hetero","present","Friday",0.75
 "4","hetero","present","Friday",0.941176470588235
 "5","hetero","present","Friday",0.777777777777778
 "6","hetero","present","Friday",0.888888888888889
@@ -113,6 +120,7 @@
 "20","hetero","present","Friday",0.882352941176471
 "1","homo","present","Friday",1
 "2","homo","present","Friday",1
+"3","homo","present","Friday",1
 "4","homo","present","Friday",0.941176470588235
 "5","homo","present","Friday",1
 "6","homo","present","Friday",1

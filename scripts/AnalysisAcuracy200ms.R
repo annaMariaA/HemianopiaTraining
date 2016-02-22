@@ -10,7 +10,7 @@ cbPalette <- c("#E69F00", "#56B4E9")
 # TODO: check subjects to replace!
 setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 # here is a list of the subjects we want to exlude from the analysis:
-subjectsToRemove = 3
+#subjectsToRemove = 3
 
 # read in acc data:
 print("Processing Acc data")
@@ -27,7 +27,7 @@ dat$session= as.factor(dat$session)
 levels(dat$session) = c("Monday", "Friday")
 
 
-dat = (dat[!(dat$subj%in% subjectsToRemove),])
+#dat = (dat[!(dat$subj%in% subjectsToRemove),])
 dat$subj = factor(dat$subj)
 
 # save!!!

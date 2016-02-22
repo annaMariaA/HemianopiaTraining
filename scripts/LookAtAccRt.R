@@ -21,12 +21,12 @@ get_legend<-function(myggplot){
 }
 levels(rtdat$trialType) = c("blind","blind", "unmodified")
 
-accdat  = aggregate(data=rtdat, acc ~ subjN + session + trialType + targSide + var, FUN="mean")
-write.csv(accdat, "data/accData.txt", row.names=F)
+#accdat  = aggregate(data=rtdat, acc ~ subjN + session + trialType + targSide + var, FUN="mean")
+#write.csv(accdat, "data/accData.txt", row.names=F)
 
-rtdat = rtdat[which(rtdat$acc==1),]
-RT  = aggregate(data=rtdat, RT ~ subjN + session + trialType + targSide + var, FUN="median")
-write.csv(RT, "data/rtData.txt", row.names=F)
+#rtdat = rtdat[which(rtdat$acc==1),]
+#RT  = aggregate(data=rtdat, RT ~ subjN + session + trialType + targSide + var, FUN="median")
+#write.csv(RT, "data/rtData.txt", row.names=F)
 
 
 # let us first look at accuracy for target present and absent
