@@ -6,8 +6,11 @@ library(scales)
 library(dplyr)
 library(car)
 
-rtdat = readRDS(file="../data/processedRTandAccData.Rda")
-fxdat = readRDS(file="../data/processedFixData.Rda")
+rtdat = readRDS(file="data/processedRTandAccData.Rda")
+fxdat = readRDS(file="data/processedFixData.Rda")
+
+#rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+#fxdat = readRDS(file="../data/processedFixData.Rda")
 
 fxdat$session = as.factor(fxdat$session)
 
