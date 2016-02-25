@@ -135,9 +135,9 @@ print("...flipping trials for hemi==right")
 
 
 
-fixData1to15=fixdat[which(fixdat$subj="1" |fixdat$subj="2" |fixdat$subj="3" |fixdat$subj="4" |fixdat$subj="5" |fixdat$subj="6" |fixdat$subj="7", |fixdat$subj="8" |fixdat$subj="9" |fixdat$subj="10" |fixdat$subj="12" |fixdat$subj="15"),]
-fixData16to20=fixdat[which(fixdat$subj="16" |fixdat$subj="17" |fixdat$subj="18" |fixdat$subj="19" |fixdat$subj="20" ),]
-fixData16to20=fixData16to20$xFix -128
+fixData1to15=fixdat[which(fixdat$subj=="1" | fixdat$subj=="2" | fixdat$subj=="3" | fixdat$subj=="4" | fixdat$subj=="5" | fixdat$subj=="6" | fixdat$subj=="7" | fixdat$subj=="8" | fixdat$subj=="9" | fixdat$subj=="10" | fixdat$subj=="12" | fixdat$subj=="15"),]
+fixData16to20=fixdat[which(fixdat$subj=="16" | fixdat$subj=="17" | fixdat$subj== "18" | fixdat$subj== "19" | fixdat$subj=="20" ),]
+fixData16to20$xFix=fixData16to20$xFix -128
 fixdat = rbind(fixData1to15,fixData16to20 )
 
 fixdat$xFix=fixdat$xFix -512

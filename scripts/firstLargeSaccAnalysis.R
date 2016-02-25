@@ -31,8 +31,8 @@ fxdat$xAOI[fxdat$xFix >  centreHalfWidth] =  1
 
 fxdat = filter(fxdat, fixNum<51)
 
-# take the subset of target absent + serial search
-fxdat = filter(fxdat, targSide=="absent", trialType=="blank", difficulty=="serial")
+# take the subset of target absent + serial/parallel search
+fxdat = filter(fxdat, targSide=="absent", trialType=="blank", difficulty=="parallel")
 
 
 aoidat = (fxdat 
@@ -52,7 +52,7 @@ plt2 = plt2 + geom_smooth(se=F)
 plt2 = plt2 + scale_y_continuous(name="prop. of fixations on either side", expand=c(0,0), limits=c(-1,1), breaks=c(-1,-.5,0,.5,1), labels=c("100% left", "75% left", "50% balanced", "75% right", "100% right"))
 plt2 = plt2 + scale_x_continuous(breaks=c(1,4,7 ,10))
 plt2 = plt2 + theme_light()
-ggsave("LeftVrightFixations.pdf", width=8, height=6)
+ggsave("LeftVrightFixationsParallel.pdf", width=8, height=6)
 # model1 = lmer(scale(xFix) ~ session*trialType*difficulty
 # 	+ (trialType+difficulty+session|subj), 
 # 	filter(fxdat, fixNum==2, targSide=="absent"),
