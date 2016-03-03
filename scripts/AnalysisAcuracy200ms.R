@@ -1,20 +1,21 @@
 library(lme4)
 library(ggplot2)
 library(scales)
-library(bear)
+library(dplyr)
 library(boot)
 library(gridExtra)
-library(Rmisc)
+library(Hmisc)
+
 cbPalette <- c("#E69F00", "#56B4E9")
 
 # TODO: check subjects to replace!
-setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
+# setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
 # here is a list of the subjects we want to exlude from the analysis:
 #subjectsToRemove = 3
 
 # read in acc data:
 print("Processing Acc data")
-dat <- read.csv("data/Acc20.txt", sep="\t")
+dat <- read.csv("../data/Acc20.txt", sep="\t")
 names(dat) = c("subj","session", "trialNum","difficulty", "targPresent", "targSide", "acc")
 dat$targPresent = as.factor(dat$targPresent)
 levels(dat$targPresent) = c("absent", "present")
@@ -31,16 +32,33 @@ levels(dat$session) = c("Monday", "Friday")
 dat$subj = factor(dat$subj)
 
 # save!!!
-saveRDS(dat,file="data/AccData200ms.Rda")
-dat = dat[which(dat$trial>9),]
-accdat  = aggregate(data=dat, acc ~ subj + difficulty + targPresent + session, FUN="mean")
+saveRDS(dat,file="../data/AccData200ms.Rda")
 
-errorbar <- summarySEwithin(accdat, measurevar="acc", withinvars=c("targPresent","difficulty","session"), idvar="subj")
-pAcc2 = ggplot(errorbar, aes(x=targPresent, y=100*acc, fill=difficulty)) + geom_bar(stat="identity", position="dodge") + theme_minimal()
-pAcc2 = pAcc2 + scale_y_continuous(name="Accuracy(%)", limits=c(0,110)) + scale_x_discrete(name="Target Present")+scale_fill_manual(name="Search Difficulty", values=cbPalette)+ facet_wrap(~session)
-pAcc2 = pAcc2 + geom_errorbar(position=position_dodge(.9), within=.25, aes(ymin=(acc-ci)*100,ymax=(acc+ci)*100),width=.5)
 
-ggsave("plots/accuracy200msc.jpg",dpi=600, width=6, height=3)
-write.csv(accdat, "data/accDat200ms.txt", row.names=F)
+
+#  why is the line below here?
+# dat = dat[which(dat$trial>9),]
+
+accdat  = (dat
+	%>% group_by(subj, difficulty, targPresent, session)
+	%>% summarise(
+		accuracy = mean(acc),
+		nTrials = length(acc))
+
+bci95 =	binconf(accdat$accuracy*accdat$nTrials, accdat$nTrials)
+accdat$lower = bci95[,2]
+accdat$upper = bci95[,3]
+rm(bci95)
+
+
+pAcc2 = ggplot(accdat, aes(x=subj, y=accuracy, colour=session,ymin=lower,ymax=upper)) 
+pAcc2 = pAcc2 + geom_point() 
+pAcc2 = pAcc2 + theme_light()
+pAcc2 = pAcc2 + scale_y_continuous(name="Accuracy(%)", limits=c(0,1)) 
+pAcc2 = pAcc2 + scale_x_discrete(name="Participant")+scale_fill_manual(name="Search Difficulty", values=cbPalette)+ facet_grid(targPresent~difficulty)
+pAcc2 = pAcc2 + geom_errorbar()
+pAcc2
+ggsave("../plots/accuracy200msc.jpg",dpi=600, width=12, height=6)
+write.csv(accdat, "../data/accDat200ms.txt", row.names=F)
 
 
