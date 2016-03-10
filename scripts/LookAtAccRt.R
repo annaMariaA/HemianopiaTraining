@@ -1,7 +1,7 @@
 #setwd("E:/Anna Desktop/SimulatedHemLineSegm")
 
-#rtdat = readRDS(file="../data/processedRTandAccData.Rda")
-rtdat = readRDS(file="data/processedRTandAccData.Rda")
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+# rtdat = readRDS(file="data/processedRTandAccData.Rda")
 cbPalette <- c("#E69F00", "#56B4E9")
 
 library(lme4)
@@ -9,8 +9,8 @@ library(ggplot2)
 library(scales)
 library(dplyr)
 library(boot)
-library(gridExtra)
-library(binom)
+# library(gridExtra)
+# library(binom)
 
 
 get_legend<-function(myggplot){
@@ -45,7 +45,8 @@ accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomia
 accplt = accplt + facet_grid(trialType~var)
 accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
 #ggsave("../plots/accuracy.pdf", width=16, height=8)
-ggsave("plots/accuracy.pdf", width=16, height=8)
+ggsave("plots/accuracy.pdf", width=12, height=6)
+ggsave("plots/accuracy.png", width=12, height=6)
 
 rtdat$session = as.numeric(rtdat$session)
 
@@ -103,14 +104,40 @@ ggsave("plots/RTserial.pdf", width=16, height=8)
 
 
 
-# model median reaction times
+# model reaction times
 m1 = lmer(data=rtdat, 
 	scale(log(RT)) ~ session*targSide*trialType*var + (session+targSide+trialType+var|subjN), 
 	control=lmerControl(optimizer="bobyqa", optCtrl = list(maxfun=100000)))
+
+# Analysis of Deviance Table (Type II Wald chisquare tests)
+
+# Response: scale(log(RT))
+#                                    Chisq Df Pr(>Chisq)    
+# session                          16.5595  1  4.715e-05 ***
+# targSide                        220.7999  2  < 2.2e-16 ***
+# trialType                        63.2704  1  1.802e-15 ***
+# var                              68.9636  1  < 2.2e-16 ***
+# session:targSide                 71.0196  2  3.787e-16 ***
+# session:trialType                22.4830  1  2.120e-06 ***
+# targSide:trialType              637.6169  2  < 2.2e-16 ***
+# session:var                       0.6997  1    0.40288    
+# targSide:var                   1689.5594  2  < 2.2e-16 ***
+# trialType:var                     0.3992  1    0.52748    
+# session:targSide:trialType        0.7676  2    0.68128    
+# session:targSide:var             74.3003  2  < 2.2e-16 ***
+# session:trialType:var            29.7427  1  4.934e-08 ***
+# targSide:trialType:var          110.1097  2  < 2.2e-16 ***
+# session:targSide:trialType:var    8.0889  2    0.01752 *
+
+
 # m2 = update(m1, ~.-session:targSide:trialType)
 # m3 = update(m2, ~.-session:targSide)
 # m4 = update(m3, ~.-session:trialType)
 # m5 = update(m4, ~.-session)
+
+m2 = lmer(data=rtdat, 
+  scale(log(RT)) ~ targSide*trialType*var + (session+targSide+trialType+var|subjN), 
+  control=lmerControl(optimizer="bobyqa", optCtrl = list(maxfun=100000)))
 
 
 
