@@ -1,5 +1,12 @@
+
+library(lme4)
+library(ggplot2)
+library(scales)
+library(bear)
+library(boot)
+
 #setwd("C:/Users/r02al13/Desktop/SimulatedHemianopia")
-fixdat=read.table("data/mergedFix.txt")
+fixdat=read.table("mergedFix.txt")
 #fixdat = readRDS(file="data/processedFixData.Rda")
 cbPalette <- c("#56B4E9", "#E69F00", "#B5CB8B")
 nbins = 16
@@ -8,11 +15,6 @@ bw = 360/nbins
 fixdat = fixdat[fixdat$targSide=="absent",]
 pd=position_dodge(0.1)
 
-library(lme4)
-library(ggplot2)
-library(scales)
-library(bear)
-library(boot)
 
 fixdat$saccAng = (180/pi) * (fixdat$saccAng ) + 180
 fixdat$saccAng = ((fixdat$saccAng) %% 360)
@@ -66,11 +68,11 @@ fixdat$saccSide[which(fixdat$saccAng>=intoSightl & fixdat$saccAng<=intoSightu)] 
 fixdat$saccSide = as.factor(fixdat$saccSide)
 #fixdat$saccAmp=log(fixdat$saccAmp)
 data=aggregate(data=fixdat, saccAmp ~ subj+hemiType+saccSide, FUN="mean")
-write.csv(data, "data/NonSuccesiveSaccAmpLog1.txt", row.names=F)
+write.csv(data, "NonSuccesiveSaccAmpLog1.txt", row.names=F)
 
 fixdat$saccAmp[which(fixdat$saccSide=="blind")] = -fixdat$saccAmp[which(fixdat$saccSide=="blind")]
 
 sideplt = ggplot(na.omit(fixdat), aes(x=saccAmp, fill=saccSide)) + geom_density(alpha = 1.0, trim=TRUE) + facet_grid(.~hemiType)
-sideplt = sideplt  + scale_x_continuous(name="Saccadic Amplitude", limits=c(-1024,1024),   breaks=c(-1024, 0, 1024), minor_breaks=c(seq(-1024,1024, 128)))
-sideplt = sideplt  + theme_bw()+  theme(axis.text.x = element_blank(), axis.text.y = element_blank()) +scale_fill_manual(name="Saccades into...", values=cbPalette)
-ggsave("plots/sightVblindSaccAmp1.jpg",dpi=600, width=10, height=3)
+sideplt = sideplt  + scale_x_continuous(name="Saccadic Amplitude", limits=c(-768, 768),   breaks=c(-1024,-512, -256, 0, 256, 512, 1024))
+sideplt = sideplt  + theme_bw()+ scale_fill_manual(name="Saccades into...", values=cbPalette)
+ggsave("sightVblindSaccAmp1.jpg",dpi=600, width=10, height=3)
