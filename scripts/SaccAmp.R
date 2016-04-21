@@ -1,4 +1,16 @@
 
+
+
+library(lme4)
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(car)
+
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+fxdat = readRDS(file="../data/processedFixData.Rda")
+
+
 fxdat$session = as.factor(fxdat$session)
 
 
@@ -56,7 +68,7 @@ plt = ggplot(aggDat, aes(x=session, y=fixationDur, ymin=lower, ymax=upper, group
 plt = plt + geom_errorbar()
 plt = plt + geom_smooth(method=lm)
 plt = plt + facet_grid(difficulty ~ trialType)
-plt = plt + scale_y_continuous(name = "mean ( median (log (saccadic amp.)))")
+plt = plt + scale_y_continuous(name = "mean ( median (log (fix. dur.)))")
 plt = plt + theme_light()
 plt
 ggsave("../plots/fixDurBySession.pdf")
