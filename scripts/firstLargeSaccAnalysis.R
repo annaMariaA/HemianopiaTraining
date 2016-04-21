@@ -9,7 +9,6 @@ library(car)
 rtdat = readRDS(file="../data/processedRTandAccData.Rda")
 fxdat = readRDS(file="../data/processedFixData.Rda")
 
-
 fxdat$session = as.factor(fxdat$session)
 
 
@@ -27,10 +26,13 @@ fxdat$xAOI = 0
 fxdat$xAOI[fxdat$xFix < -centreHalfWidth] = -1
 fxdat$xAOI[fxdat$xFix >  centreHalfWidth] =  1
 
-fxdat = filter(fxdat, fixNum<51)
+# /fxdat = filter(fxdat, fixNum<51)
 
 # take the subset of target absent + serial/parallel search
-fxdat = filter(fxdat, targSide=="absent", trialType=="blank", difficulty=="parallel")
+fxdat = filter(fxdat, 
+	targSide=="absent", 
+	trialType=="blank", 
+	difficulty=="parallel")
 
 
 aoidat = (fxdat 
@@ -38,8 +40,8 @@ aoidat = (fxdat
 		%>% summarise(
 			meanSide=mean(xAOI), 
 			nFix=length(xAOI)))
-# remove entries with fewer than 100 fixations
-aoidat = filter(aoidat, nFix>11, fixNum<11)
+# remove entries with fewer than 10 fixations
+aoidat = filter(aoidat, nFix>3, fixNum<7)
 
 
 
