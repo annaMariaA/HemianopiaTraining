@@ -1,6 +1,6 @@
 #setwd("E:/Anna Desktop/SimulatedHemLineSegm")
 
-rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+rtdat = readRDS(file="data/processedRTandAccData.Rda")
 # rtdat = readRDS(file="data/processedRTandAccData.Rda")
 cbPalette <- c("#E69F00", "#56B4E9")
 
@@ -9,6 +9,7 @@ library(ggplot2)
 library(scales)
 library(dplyr)
 library(boot)
+library(binom)
 # library(gridExtra)
 # library(binom)
 
@@ -19,7 +20,7 @@ get_legend<-function(myggplot){
   legend <- tmp$grobs[[leg]]
   return(legend)
 }
-levels(rtdat$trialType) = c("blind","blind", "unmodified")
+levels(rtdat$trialType) = c("blank","blank", "unmodified")
 
 #accdat  = aggregate(data=rtdat, acc ~ subjN + session + trialType + targSide + var, FUN="mean")
 #write.csv(accdat, "data/accData.txt", row.names=F)
@@ -45,8 +46,8 @@ accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomia
 accplt = accplt + facet_grid(trialType~var)
 accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
 #ggsave("../plots/accuracy.pdf", width=16, height=8)
-ggsave("plots/accuracy.pdf", width=12, height=6)
-ggsave("plots/accuracy.png", width=12, height=6)
+ggsave("plots/accuracy.pdf", width=9, height=5)
+ggsave("plots/accuracy.png", width=9, height=5)
 
 rtdat$session = as.numeric(rtdat$session)
 
@@ -100,7 +101,8 @@ rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smoot
 rtplt = rtplt + facet_grid(trialType~var, scales="free_y")
 rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
 #ggsave("../plots/RTserial.pdf", width=16, height=8)
-ggsave("plots/RTserial.pdf", width=16, height=8)
+ggsave("plots/RTserial.pdf", width=12, height=6)
+ggsave("plots/RTserial.jpg", width=12, height=6)
 
 
 
