@@ -31,7 +31,7 @@ saccInfo <- function(trialDat)
 #
 print("Processing Fix data...")
 
-dat <- read.csv("data/FixDataObjectNaming2.txt", header=T, sep="\t")
+dat <- read.csv("data/FixDataObject.txt", header=T, sep="\t")
 names(dat) = c("subj", "session", "trialNo", "fixNum", "xFix", "yFix", "fixStartTime", "fixEndTime", "hemiSide")
 
 summary(dat)
@@ -49,14 +49,7 @@ dat$trial = factor(paste(dat$hemiSide, dat$trialNo))
 # flip hemiSide = right so we can pretend hemiSide isn't a condition
 #
 print("...flipping trials for hemi==right")
-
-
-
-fixData1to15=dat[which(dat$subj=="1" | dat$subj=="2" | dat$subj=="3" | dat$subj=="4" | dat$subj=="5" | dat$subj=="6" | dat$subj=="7" | dat$subj=="8" | dat$subj=="9" | dat$subj=="10" | dat$subj=="12" | dat$subj=="15"),]
-fixData16to20=dat[which(dat$subj=="16" | dat$subj=="17" | dat$subj== "18" | dat$subj== "19" | dat$subj=="20" ),]
-fixData16to20$xFix=fixData16to20$xFix -128
-fixdat = rbind(fixData1to15,fixData16to20 )
-
+fixdat=dat
 
 fixdat$xFix=fixdat$xFix -512
 fixdat$subj = as.factor(fixdat$subj)
@@ -120,7 +113,7 @@ fxdat$session = as.factor(fxdat$session)
 # define x=0 to be vertical midline
 fxdat$xFix = fxdat$xFix - 512
 # code into AOIs (left/centre/right)
-centreHalfWidth = 30
+centreHalfWidth = 35
 fxdat$xAOI = 0
 fxdat$xAOI[fxdat$xFix < -centreHalfWidth] = -1
 fxdat$xAOI[fxdat$xFix >  centreHalfWidth] =  1

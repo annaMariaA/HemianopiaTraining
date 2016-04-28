@@ -20,7 +20,7 @@ ntrialsdat = (fxdat
 # define x=0 to be vertical midline
 fxdat$xFix = fxdat$xFix - 512
 # code into AOIs (left/centre/right)
-centreHalfWidth = 30
+centreHalfWidth = 1
 fxdat$xAOI = 0
 fxdat$xAOI[fxdat$xFix < -centreHalfWidth] = -1
 fxdat$xAOI[fxdat$xFix >  centreHalfWidth] =  1
