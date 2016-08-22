@@ -1,6 +1,8 @@
-#setwd("E:/Anna Desktop/SimulatedHemLineSegm")
+S#setwd("E:/Anna Desktop/SimulatedHemLineSegm")
 
-rtdat = readRDS(file="data/processedRTandAccData.Rda")
+library(scales)
+
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")
 # rtdat = readRDS(file="data/processedRTandAccData.Rda")
 cbPalette <- c("#E69F00", "#56B4E9")
 
@@ -98,11 +100,11 @@ aggRtData = (rtdat
 
 rtplt = ggplot(aggRtData, aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))
 rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm", ) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) 
-rtplt = rtplt + facet_grid(trialType~var, scales="free_y")
-rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
+rtplt = rtplt + facet_grid(trialType~var) + coord_trans(y="log2")
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)", breaks=c(1,2,4,8,16), limits=c(1,16))
 #ggsave("../plots/RTserial.pdf", width=16, height=8)
-ggsave("plots/RTserial.pdf", width=12, height=6)
-ggsave("plots/RTserial.jpg", width=12, height=6)
+ggsave("../plots/RTserial.pdf", width=12, height=6)
+ggsave("../plots/RTserial.jpg", width=12, height=6)
 
 
 
