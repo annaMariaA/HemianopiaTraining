@@ -14,10 +14,12 @@ fxdat$session = as.factor(fxdat$session)
 fxdat$xFix = fxdat$xFix - 512
 
 plt = ggplot(fxdat, aes(x=xFix, colour=session)) + geom_density()
+plt = plt + scale_x_continuous(limits=c(-400,400))
 ggsave("../plots/objects/xHist.pdf")
 
 plt = ggplot(filter(fxdat, fixNum<11), aes(x=xFix, colour=session)) + geom_density()
-plt = plt + facet_wrap(~fixNum, scales="free_y")
+plt = plt + facet_wrap(~fixNum, scales="free_y", nrow=5)
+plt = plt + scale_x_continuous(limits=c(-400,400))
 ggsave("../plots/objects/xHistFacet.pdf")
 
 # code into AOIs (left/centre/right)
