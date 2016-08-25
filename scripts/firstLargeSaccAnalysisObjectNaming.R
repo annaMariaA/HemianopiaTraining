@@ -13,14 +13,14 @@ fxdat$session = as.factor(fxdat$session)
 # define x=0 to be vertical midline
 fxdat$xFix = fxdat$xFix - 512
 
-plt = ggplot(fxdat, aes(x=xFix, colour=session)) + geom_density()
+plt = ggplot(filter(fxdat, fixNum<11), aes(x=xFix, colour=session)) + geom_density()
 plt = plt + scale_x_continuous(limits=c(-400,400))
-ggsave("../plots/objects/xHist.pdf")
+ggsave("../plots/objects/xHistFix.pdf")
 
 plt = ggplot(filter(fxdat, fixNum<11), aes(x=xFix, colour=session)) + geom_density()
 plt = plt + facet_wrap(~fixNum, scales="free_y", nrow=5)
 plt = plt + scale_x_continuous(limits=c(-400,400))
-ggsave("../plots/objects/xHistFacet.pdf")
+ggsave("../plots/objects/xHistFixFacet.pdf")
 
 # code into AOIs (left/centre/right)
 centreHalfWidth = 30
@@ -93,7 +93,7 @@ for (ii in levels(fxdat$subj))
 		}
 	}
 }
-
+saccDat$session = as.factor(saccDat$session)
 sxdat = (saccDat 
 		%>% group_by(saccNum, session, subj) 
 		%>% summarise(
@@ -112,3 +112,13 @@ plt3 = plt3 + scale_y_continuous(name="saccadic amplitude", expand=c(0,0), limit
 plt3 = plt3 + scale_x_continuous(name="saccade number", breaks=c(1,4, 7, 10))
 plt3 = plt3 + theme_light()
 ggsave("../plots/objects/horiSaccAmplitude_agg.pdf", width=8, height=6)
+
+plt = ggplot(filter(saccDat, saccNum<11), aes(x=xDist, colour=session)) + geom_density()
+plt = plt + scale_x_continuous(limits=c(-400,400))
+ggsave("../plots/objects/xHistSacc.pdf")
+
+plt = ggplot(filter(saccDat, saccNum<11), aes(x=xDist, colour=session)) + geom_density()
+plt = plt + facet_wrap(~saccNum, scales="free_y", nrow=5)
+plt = plt + scale_x_continuous(limits=c(-400,400))
+ggsave("../plots/objects/xHistSaccFacet.pdf")
+
