@@ -6,8 +6,8 @@ library(scales)
 library(dplyr)
 library(car)
 
-rtdat = readRDS(file="data/processedRTandAccData.Rda")
-fxdat = readRDS(file="data/processedFixData.Rda")
+rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+fxdat = readRDS(file="../data/processedFixData.Rda")
 
 fxdat$session = as.factor(fxdat$session)
 
@@ -40,26 +40,19 @@ aoidat = (fxdat
 		%>% summarise(
 			meanSide=mean(xAOI), 
 			nFix=length(xAOI)))
-#<<<<<<< HEAD
-# remove entries with fewer than 100 fixations
-aoidat = filter(aoidat, nFix>6, fixNum<11)
-#=======
+
+
 # remove entries with fewer than 10 fixations
-#aoidat = filter(aoidat, nFix>9, fixNum<11)
-#>>>>>>> origin/master
+aoidat = filter(aoidat, nFix>6, fixNum<11)
 
 
 
 
-plt2 = ggplot(aoidat, aes(y=meanSide, x=fixNum, colour=session))
-#plt2 = plt2 + facet_wrap(subj~difficulty, nrow=2)
-plt2 = plt2 + geom_smooth(se=F)
+plt2 = ggplot(aoidat, aes(y=meanSide, x=as.numeric(session), group=as.factor(subj)))
+plt2 = plt2 + geom_path() + facet_grid(difficulty~fixNum)
+plt2 = plt2 + geom_smooth(group=1)
 plt2 = plt2 + scale_y_continuous(name="prop. of fixations on either side", expand=c(0,0), limits=c(-1,1), breaks=c(-1,-.5,0,.5,1), labels=c("100% left", "75% left", "50% balanced", "75% right", "100% right"))
 plt2 = plt2 + scale_x_continuous(breaks=c(1,3,5,7,10))
 plt2 = plt2 + theme_light()
-ggsave("LeftVrightFixationsSerialMean.pdf", width=8, height=6)
-ggsave("LeftVrightFixationsParallel.jpg", width=8, height=6)
-# model1 = lmer(scale(xFix) ~ session*trialType*difficulty
-# 	+ (trialType+difficulty+session|subj), 
-# 	filter(fxdat, fixNum==2, targSide=="absent"),
-# 	control=lmerControl(optimizer="bobyqa", optCtrl = list(maxfun=100000)))
+ggsave("../plots/fixdists/LeftVrightFixationsSerialMean.pdf", width=10, height=3)
+#

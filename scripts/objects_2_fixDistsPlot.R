@@ -1,4 +1,4 @@
-
+	
 
 library(lme4)
 library(ggplot2)
@@ -86,26 +86,36 @@ for (ii in levels(fxdat$subj))
 			trialDat = filter(sdat, trial==jj)
 			if (nrow(trialDat)>1)
 			{
-				trialSaccs = trialDat$xFix[2:nrow(trialDat)]-trialDat$xFix[1:nrow(trialDat)-1]
-				
+				xd = trialDat$xFix[2:nrow(trialDat)]-trialDat$xFix[1:nrow(trialDat)-1]
+				yd = trialDat$yFix[2:nrow(trialDat)]-trialDat$yFix[1:nrow(trialDat)-1]
+				ampDirection = xd >0
+				amps = sqrt(xd^2+yd^2)
+				amps[ampDirection==FALSE]=-amps[ampDirection==FALSE]
+				ang = atan2(xd,yd)
 				saccDat = rbind(saccDat, 
-					data.frame(subj=ii, session=ss, trial=jj, saccNum = seq(1, nrow(trialDat)-1), xDist = trialSaccs))}
+					data.frame(subj=ii, session=ss, trial=jj, saccNum = seq(1, nrow(trialDat)-1), amp = amps, ang=ang))}
 		}
 	}
 }
+
+# only take left and right saccades
+saccDat$ang = 180*saccDat$ang / pi
+saccDat$horizontal = FALSE
+saccDat$horizontal[abs(abs(saccDat$ang)-90)<45] = TRUE
+
 saccDat$session = as.factor(saccDat$session)
-sxdat = (saccDat 
+sxdat = (filter(saccDat, horizontal==TRUE) 
 		%>% group_by(saccNum, session, subj) 
 		%>% summarise(
-			meanX=mean(xDist), 
-			nFix=length(xDist)))
+			meanAmp=mean(amp), 
+			nFix=length(amp)))
 # remove entries with fewer than 10 fixations
 sxdat = filter(sxdat, nFix>=10, saccNum<=10)
 
 sxdat$session = as.factor(sxdat$session)
 
 
-plt3 = ggplot(sxdat, aes(y=meanX, x=saccNum, colour=session))
+plt3 = ggplot(sxdat, aes(y=meanAmp, x=saccNum, colour=session))
 plt3 = plt3 + geom_point(position=position_jitter(height=0.01, width=0.1))
 plt3 = plt3 + geom_smooth(se=F)
 plt3 = plt3 + scale_y_continuous(name="saccadic amplitude", expand=c(0,0), limits=c(-400,400))
@@ -113,11 +123,11 @@ plt3 = plt3 + scale_x_continuous(name="saccade number", breaks=c(1,4, 7, 10))
 plt3 = plt3 + theme_light()
 ggsave("../plots/objects/horiSaccAmplitude_agg.pdf", width=8, height=6)
 
-plt = ggplot(filter(saccDat, saccNum<11), aes(x=xDist, colour=session)) + geom_density()
+plt = ggplot(filter(saccDat, saccNum<11), aes(x=amp, colour=session)) + geom_density()
 plt = plt + scale_x_continuous(limits=c(-400,400))
 ggsave("../plots/objects/xHistSacc.pdf")
 
-plt = ggplot(filter(saccDat, saccNum<11), aes(x=xDist, colour=session)) + geom_density()
+plt = ggplot(filter(saccDat, saccNum<11), aes(x=amp, colour=session)) + geom_density()
 plt = plt + facet_wrap(~saccNum, scales="free_y", nrow=5)
 plt = plt + scale_x_continuous(limits=c(-400,400))
 ggsave("../plots/objects/xHistSaccFacet.pdf")
