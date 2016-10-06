@@ -59,8 +59,11 @@ plt = plt + scale_x_continuous(breaks=c(1,4,7,10))
 plt = plt + theme_light()
 ggsave("../plots/objects/meanXfixPos_agg.pdf", width=8, height=6)
 
-xdat = filter(xdat, fixNum<=10, session==2)
 
+
+xdatSes1 = filter(xdat, fixNum<=10, session==1)
+xdatSes2 = filter(xdat, fixNum<=10, session==2)
+xdatSes2$ses1=xdatSes1$meanX
 dat <- read.csv("Objejct_Naming_Responses/MeanObjectNamed.txt", sep="\t")
 subjectsToRemove=c(12,19)
 dat$partNo = as.factor(dat$partNo)

@@ -5,9 +5,12 @@ library(ggplot2)
 library(scales)
 library(dplyr)
 library(car)
+setwd("C:/Users/Anna/Documents/GitHub/HemianopiaTraining")
+#rtdat = readRDS(file="../data/processedRTandAccData.Rda")
+#fxdat = readRDS(file="../data/processedFixData.Rda")
 
-rtdat = readRDS(file="../data/processedRTandAccData.Rda")
-fxdat = readRDS(file="../data/processedFixData.Rda")
+rtdat = readRDS(file="data/processedRTandAccData.Rda")
+fxdat = readRDS(file="data/processedFixData.Rda")
 
 fxdat$session = as.factor(fxdat$session)
 
@@ -16,7 +19,9 @@ fxdat$session = as.factor(fxdat$session)
 ntrialsdat = (fxdat 
 		%>% group_by(subj, session, difficulty, trialType, targSide) 
 		%>% summarise(
-			nTrials = length(unique(trialNo))))
+			nTrials = length(unique(trial))))
+ 
+
 
 # define x=0 to be vertical midline
 fxdat$xFix = fxdat$xFix - 512
@@ -33,8 +38,24 @@ fxdat = filter(fxdat,
 	targSide=="absent", 
 	trialType=="blank", 
 	difficulty=="serial")
+xdat = (fxdat 
+		%>% group_by(fixNum, session, subj) 
+		%>% summarise(
+			meanX=mean(xFix), 
+			nFix=length(xFix)))
 
+# remove entries with fewer than 10 fixations
+xdat = filter(xdat, nFix>=10, fixNum<=5)
 
+plt = ggplot(xdat, aes(y=meanX, x=fixNum, colour=session))
+plt = plt + geom_point(position=position_jitter(height=0.01, width=0.1))
+plt = plt + geom_smooth(se=F)
+plt = plt + scale_y_continuous(name="mean x position of fixation", expand=c(0,0), limits=c(-400,400))
+plt = plt + scale_x_continuous(breaks=c(1,2,3,4,5))
+plt = plt + theme_light()
+ggsave("plots/meanXfixPos_agg.pdf", width=8, height=6)
+
+aoidat = filter(aoidat, nFix>6, fixNum<6)
 aoidat = (fxdat 
 		%>% group_by(fixNum, session, difficulty, subj) 
 		%>% summarise(
@@ -42,8 +63,8 @@ aoidat = (fxdat
 			nFix=length(xAOI)))
 
 
-# remove entries with fewer than 10 fixations
-aoidat = filter(aoidat, nFix>6, fixNum<11)
+
+
 
 
 
