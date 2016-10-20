@@ -45,20 +45,20 @@ xdat = (fxdat
 
 # remove entries with fewer than 10 fixations
 xdat = filter(xdat, nFix>=10, fixNum<=5)
-
+xdat$fixNum = xdat$fixNum-1
 plt = ggplot(xdat, aes(y=meanX, x=fixNum, colour=session))
 plt = plt + geom_point(position=position_jitter(height=0.01, width=0.1))
-plt = plt + geom_smooth(method=lm, se=F)
+# plt = plt + geom_smooth(method=lm, se=F)
 plt = plt + scale_y_continuous(name="mean x position of fixation", expand=c(0,0), limits=c(-400,400))
-plt = plt + scale_x_continuous(breaks=c(1,2,3,4,5))
+plt = plt + scale_x_continuous(breaks=c(1,2,3,4,5), expand=c(0,0.01))
 plt = plt + theme_light()
 ggsave("../plots/meanXfixPos_agg.pdf", width=8, height=6)
 
 
 # modelling! exicting! woooo
-xdat$fixNum = xdat$fixNum
-simpleModel = lmer(data=filter(dat, fixNum<=5), xFix~session:fixNum+0+(fixNum:session|subj))
 
+simpleModel = lmer(data=filter(xdat, fixNum<=5), scale(meanX)~session:fixNum+0+(0+fixNum:session|subj))
+ciSM = confint(simpleModel, method="boot")
 
 # aoidat = filter(aoidat, nFix>6, fixNum<6)
 # aoidat = (fxdat 
@@ -67,7 +67,25 @@ simpleModel = lmer(data=filter(dat, fixNum<=5), xFix~session:fixNum+0+(fixNum:se
 # 			meanSide=mean(xAOI), 
 # 			nFix=length(xAOI)))
 
+largerModel = lmer(data=filter(fxdat, fixNum<=5), scale(xFix)~session:fixNum+0+(0+fixNum:session|subj))
+ciLM = confint(largerModel, method="boot")
 
+slopeDat = data.frame(session=as.factor(c(1,2,3,4,5)), m=as.numeric(fixef(largerModel)))
+plt = plt + geom_abline(data=slopeDat, aes(slope=m,colour=session, intercept=0))
+
+
+slopeDat = data.frame(
+	model=c(rep("mean x",5), rep("x",5)),
+	session=as.factor(rep(c(1,2,3,4,5),2)), 
+	m=as.numeric(c(fixef(simpleModel), fixef(largerModel))),
+	lower = c(ciSM[17:21,1],ciLM[17:21,1]), upper=c(ciSM[17:21,2], ciLM[17:21,2]))
+
+plt = ggplot(slopeDat, aes(x=session, y=m, colour=model, ymin=lower, ymax=upper, group=model))
+plt = plt + geom_point(position = position_dodge(width = .25)) + geom_errorbar(position = position_dodge(width = 0.25) ) + geom_path(position = position_dodge(width = 0.25))
+plt = plt + geom_hline(yintercept=0)
+plt = plt + scale_y_continuous(name = "slope (pixels/fixation)")
+plt = plt + theme_bw()
+ggsave("../plots/horiModel.pdf", width=6, height=6) 
 
 
 
