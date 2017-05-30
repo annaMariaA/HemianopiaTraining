@@ -1,7 +1,9 @@
-#setwd("E:/Anna Desktop/SimulatedHemLineSegm")
 
+setwd("C:/Users/Anna/Documents/GitHub/HemianopiaTraining")
+library(scales)
+
+#rtdat = readRDS(file="../data/processedRTandAccData.Rda")
 rtdat = readRDS(file="data/processedRTandAccData.Rda")
-# rtdat = readRDS(file="data/processedRTandAccData.Rda")
 cbPalette <- c("#E69F00", "#56B4E9")
 
 library(lme4)
@@ -42,7 +44,7 @@ aggAcc = (rtdat
 pd <- position_dodge(width = 0.5)
 accplt = ggplot(aggAcc, aes(x=session, y=acc, ymin=lower, ymax=upper, colour=targSide))
 accplt = accplt + geom_point(aes(group=subjN:targSide), position = pd) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) 
-accplt = accplt + geom_smooth(aes(group=targSide), method="glm", family="binomial", se=F)
+accplt = accplt + geom_smooth(aes(group=targSide), method="glm",span=0.3,  se=F)
 accplt = accplt + facet_grid(trialType~var)
 accplt = accplt + theme_bw() + scale_y_continuous(name="accuracy")
 #ggsave("../plots/accuracy.pdf", width=16, height=8)
@@ -97,9 +99,9 @@ aggRtData = (rtdat
 
 
 rtplt = ggplot(aggRtData, aes(x=session, y=rt, ymin=lower, ymax=upper, colour=targSide, group=targSide))
-rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm", ) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) 
-rtplt = rtplt + facet_grid(trialType~var, scales="free_y")
-rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)")
+rtplt = rtplt + geom_point(aes(group=subjN:targSide), position = pd)+ geom_smooth(method="lm",span=0.3 ) + geom_errorbar(aes(group=subjN:targSide), position = pd, width=0.5) 
+rtplt = rtplt + facet_grid(trialType~var) + coord_trans(y="log2")
+rtplt = rtplt + theme_bw() + scale_y_continuous(name="median reaction time (seconds)", breaks=c(1,2,4,8,16))#, limits=c(1,16)
 #ggsave("../plots/RTserial.pdf", width=16, height=8)
 ggsave("plots/RTserial.pdf", width=12, height=6)
 ggsave("plots/RTserial.jpg", width=12, height=6)
@@ -152,11 +154,11 @@ legend<- get_legend(pAcc2)
 legend<- get_legend(pRT1)
 pAcc2<- pAcc2+ theme(legend.position="none")
 pRT1<- pRT1+ theme(legend.position="none")
-jpeg(filename = "../plots/RtAcc.jpg",width=1200,height=500, pointsize =10, quality = 1000, bg = "white", res = 150, restoreConsole = TRUE)
+jpeg(filename = "plots/RtAcc.jpg",width=1200,height=500, pointsize =10, quality = 1000, bg = "white", res = 150, restoreConsole = TRUE)
 
 grid.arrange(pRT1,pAcc2,legend,ncol=3,widths=c(12,12, 5))
 dev.off()
 
-
+family="binomial",
 
 
