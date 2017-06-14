@@ -5,6 +5,7 @@ library(ggplot2)
 library(scales)
 library(dplyr)
 library(car)
+library(gridExtra)
 
 cbPalette <- c("#E69F00", "#56B4E9","#B5CB8B")
 get_legend<-function(myggplot){
@@ -37,10 +38,15 @@ xdat = (fxdat
 		%>% summarise(
 			meanX=mean(xFix), 
 			nFix=length(xFix)))
-# remove entries with fewer than 10 fixations
-xdat = filter(xdat, nFix>=10, fixNum<=8)
+
+#do some statistics, save aggregated results
+xdat2 = xdat[which(xdat$fixNum>1 & xdat$fixNum<=10),]
+xdat2  = aggregate(data=xdat2, meanX ~ subj + session, FUN="mean")
+write.csv(xdat2, "aggregatedObjectNamingTraining.txt", row.names=F)
 
 # plot
+# remove entries with fewer than 8 fixations
+xdat = filter(xdat, fixNum<=8)
 plt1 = ggplot(xdat, aes(y=meanX, x=fixNum, colour=session))
 plt1 = plt1 + geom_point(position=position_jitter(height=0.01, width=0.1))
 plt1 = plt1 + geom_smooth(se=F)
@@ -51,7 +57,7 @@ plt1
 ggsave("meanXfixPos_agg.pdf", width=8, height=6)
 
 
-CONTROL STUDY
+#CONTROL STUDY
 setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining/ControlStudyResults/ObjectNaming")
 fxdat = readRDS(file="processedObjectData.Rda")
 #fxdat = readRDS(file="../data/processedObjectData.Rda")
@@ -76,10 +82,17 @@ xdat = (fxdat
 		%>% summarise(
 			meanX=mean(xFix), 
 			nFix=length(xFix)))
-# remove entries with fewer than 10 fixations
-xdat = filter(xdat, nFix>=10, fixNum<=8)
+
+write.csv(xdat, "xdat.txt", row.names=F)
+
+#do some statistics, save aggregated results
+xdat2 = xdat[which(xdat$fixNum>1 & xdat$fixNum<=10),]
+xdat2  = aggregate(data=xdat2, meanX ~ subj + session, FUN="mean")
+write.csv(xdat2, "aggregatedObjectNamingControl.txt", row.names=F)
 
 # plot
+# remove entries with fewer than 10 fixations
+xdat = filter(xdat, fixNum<=8)
 plt2 = ggplot(xdat, aes(y=meanX, x=fixNum, colour=session))
 plt2 = plt2 + geom_point(position=position_jitter(height=0.01, width=0.1))
 plt2 = plt2 + geom_smooth(se=F)

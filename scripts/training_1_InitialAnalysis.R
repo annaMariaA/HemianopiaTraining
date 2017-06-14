@@ -9,8 +9,7 @@ maxFixDur = 2000
 # read in reaction time and acc data:
 # this will allow us to remove fixation data for incorrect trials
 print("Processing RT and Acc data")
-dat <- read.csv("data/RTdataAmended.txt", sep="\t")
-#dat <- read.csv("data/RtAcc20.txt", sep="\t")
+dat <- read.csv("data/rtData2.txt", sep="\t")
 names(dat) = c(
 	"subjectN", 
 	"session", 
@@ -78,8 +77,7 @@ saccInfo <- function(trialDat)
 # now read in fixation data
 #
 print("Processing Fix data...")
-#dat <- read.csv("../data/Fix10.txt", header=T, sep="\t")
-dat <- read.csv("data/FixDataAmended.txt", header=T, sep="\t")
+dat <- read.csv("data/FixationsTest.txt", header=T, sep="\t")
 names(dat) = c("subj", "session", "trialNo", "fixNum", "trialType", "xFix", "yFix", "fixStartTime", "fixEndTime", "hemianopia", "targPresent",	"targSide",	"row", "column", "difficulty", "name")
 levels(dat$targPresent) = c("absent", "present")
 levels(dat$trialType) = c("left","right", "unmodified")

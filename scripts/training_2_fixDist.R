@@ -19,7 +19,16 @@ ntrialsdat = (fxdat
 		%>% group_by(subj, session, difficulty, trialType, targSide) 
 		%>% summarise(
 			nTrials = length(unique(trial))))
- 
+# same just for target absent
+fxdatAbsParal=fxdat[fxdat$targSide=="absent" &fxdat$difficulty=="parallel" &fxdat$trialType=="blank",]
+ntrialsdat = (fxdatAbsParal 
+		%>% group_by(subj, session, difficulty, trialType) 
+		%>% summarise(
+			nTrials = length(unique(trial))))
+
+write.csv(ntrialsdat,"data/traialsPerCondition.txt",row.names=F)
+
+
 
 
 # define x=0 to be vertical midline
@@ -30,7 +39,31 @@ fxdat$xAOI = 0
 fxdat$xAOI[fxdat$xFix < -centreHalfWidth] = -1
 fxdat$xAOI[fxdat$xFix >  centreHalfWidth] =  1
 
+
+#make a graph for all the conditions, target absent trials
 # /fxdat = filter(fxdat, fixNum<51)
+fxdat1 = filter(fxdat, 
+	targSide=="absent") 
+xdat1 = (fxdat1 
+		%>% group_by(fixNum, session, subj,trialType, difficulty) 
+		%>% summarise(
+			meanX=mean(xFix), 
+			nFix=length(xFix)))
+#data for graph and analysis
+xdat1 = filter(xdat1, fixNum<=8,fixNum>1)
+dataAgg<-filter(xdat1,difficulty=="parallel",trialType=="blank")
+dataAgg  = aggregate(data=dataAgg, meanX ~ subj + session, FUN="mean")
+write.csv(dataAgg,"data/meanFixPosition.txt",row.names=F)
+
+plt = ggplot(xdat1, aes(y=meanX, x=fixNum, colour=session))
+plt = plt + geom_point(aes(group=subj),position=position_jitter(height=0.01, width=0.1))
+plt = plt + geom_smooth(se=F)+facet_grid(trialType~difficulty)
+plt = plt + scale_y_continuous(name="mean x position of fixation", expand=c(0,0), limits=c(-400,400))
+plt = plt + scale_x_continuous(name="fixation number",breaks=c(1,2,3,4,5,6,7,8), expand=c(0,0.01))
+plt = plt + theme_light()
+ggsave("plots/meanXfixPos_aggFourConditions.pdf", width=8, height=6)
+ggsave("plots/meanXfixPos_aggFourConditions.jpg", width=8, height=6)
+
 
 # take the subset of target absent + serial/parallel search
 fxdat = filter(fxdat, 
@@ -42,9 +75,10 @@ xdat = (fxdat
 		%>% summarise(
 			meanX=mean(xFix), 
 			nFix=length(xFix)))
-
-# remove entries with fewer than 10 fixations
-xdat = filter(xdat, nFix>=10, fixNum<=8)
+#only for first 8 fixations
+xdat = filter(xdat, fixNum<=8)
+head(xdat)
+#write.csv(xdat,"data/meanFixPosition.txt",row.names=F)
 #xdat$fixNum = xdat$fixNum-1
 plt = ggplot(xdat, aes(y=meanX, x=fixNum, colour=session))
 plt = plt + geom_point(position=position_jitter(height=0.01, width=0.1))
