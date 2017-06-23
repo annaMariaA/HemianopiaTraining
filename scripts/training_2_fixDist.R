@@ -5,14 +5,15 @@ library(scales)
 library(dplyr)
 library(car)
 setwd("C:/Users/r02al13/Documents/GitHub/HemianopiaTraining")
-#rtdat = readRDS(file="../data/processedRTandAccData.Rda")
-#fxdat = readRDS(file="../data/processedFixData.Rda")
+
+#processedFixDataDisplayOn
+#processedFixDataFacesOn
 
 rtdat = readRDS(file="data/processedRTandAccData.Rda")
-fxdat = readRDS(file="data/processedFixData.Rda")
+fxdat = readRDS(file="data/processedFixDataDisplayOn.Rda")
 
 fxdat$session = as.factor(fxdat$session)
-
+fxdat$xFix<-fxdat$xFixFlipped
 
 #  check number of trials for each person/block
 ntrialsdat = (fxdat 
@@ -32,16 +33,11 @@ write.csv(ntrialsdat,"data/traialsPerCondition.txt",row.names=F)
 
 
 # define x=0 to be vertical midline
-fxdat$xFix = fxdat$xFix - 512
-# code into AOIs (left/centre/right)
-centreHalfWidth = 30
-fxdat$xAOI = 0
-fxdat$xAOI[fxdat$xFix < -centreHalfWidth] = -1
-fxdat$xAOI[fxdat$xFix >  centreHalfWidth] =  1
+#fxdat$xFix = fxdat$xFix - 512
 
 
 #make a graph for all the conditions, target absent trials
-# /fxdat = filter(fxdat, fixNum<51)
+# /fxdat = filter(fxdat, fixNum<9)
 fxdat1 = filter(fxdat, 
 	targSide=="absent") 
 xdat1 = (fxdat1 
@@ -49,11 +45,13 @@ xdat1 = (fxdat1
 		%>% summarise(
 			meanX=mean(xFix), 
 			nFix=length(xFix)))
+# remove entries with fewer than 10 fixations
+xdat1 = filter(xdat1, nFix>=1, fixNum<=8)
 #data for graph and analysis
-xdat1 = filter(xdat1, fixNum<=8,fixNum>1)
 dataAgg<-filter(xdat1,difficulty=="parallel",trialType=="blank")
 dataAgg  = aggregate(data=dataAgg, meanX ~ subj + session, FUN="mean")
-write.csv(dataAgg,"data/meanFixPosition.txt",row.names=F)
+write.csv(dataAgg,"data/meanFixPositionFacesON.txt",row.names=F)
+
 
 plt = ggplot(xdat1, aes(y=meanX, x=fixNum, colour=session))
 plt = plt + geom_point(aes(group=subj),position=position_jitter(height=0.01, width=0.1))
@@ -61,22 +59,22 @@ plt = plt + geom_smooth(se=F)+facet_grid(trialType~difficulty)
 plt = plt + scale_y_continuous(name="mean x position of fixation", expand=c(0,0), limits=c(-400,400))
 plt = plt + scale_x_continuous(name="fixation number",breaks=c(1,2,3,4,5,6,7,8), expand=c(0,0.01))
 plt = plt + theme_light()
-ggsave("plots/meanXfixPos_aggFourConditions.pdf", width=8, height=6)
-ggsave("plots/meanXfixPos_aggFourConditions.jpg", width=8, height=6)
+ggsave("plots/meanXfixPos_aggFourConditionsDisplayON.pdf", width=8, height=6)
+ggsave("plots/meanXfixPos_aggFourConditionsDisplayON.jpg", width=8, height=6)
 
 
 # take the subset of target absent + serial/parallel search
 fxdat = filter(fxdat, 
 	targSide=="absent", 
 	trialType=="blank", 
-	difficulty=="parallel")
+	difficulty=="serial")
 xdat = (fxdat 
 		%>% group_by(fixNum, session, subj) 
 		%>% summarise(
 			meanX=mean(xFix), 
 			nFix=length(xFix)))
 #only for first 8 fixations
-xdat = filter(xdat, fixNum<=8)
+xdat = filter(xdat, fixNum<=8,nFix>=1)
 head(xdat)
 #write.csv(xdat,"data/meanFixPosition.txt",row.names=F)
 #xdat$fixNum = xdat$fixNum-1
@@ -85,9 +83,10 @@ plt = plt + geom_point(position=position_jitter(height=0.01, width=0.1))
 plt = plt + geom_smooth( se=F)
 plt = plt + scale_y_continuous(name="mean x position of fixation", expand=c(0,0), limits=c(-400,400))
 plt = plt + scale_x_continuous(name="fixation number",breaks=c(1,2,3,4,5,6,7,8), expand=c(0,0.01))
-plt = plt + theme_light()
-ggsave("plots/meanXfixPos_agg.pdf", width=8, height=6)
-ggsave("plots/meanXfixPos_agg.jpg", width=8, height=6)
+plt = plt + theme_light()+facet_grid(~subj)
+#plt = plt + theme_light()
+ggsave("plots/meanXfixPos_DisplayON.pdf", width=16, height=6)
+ggsave("plots/meanXfixPos_DisplayON.jpg", width=16, height=6)
 
 # modelling! exicting! woooo
 

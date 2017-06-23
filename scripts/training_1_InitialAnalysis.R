@@ -77,8 +77,8 @@ saccInfo <- function(trialDat)
 # now read in fixation data
 #
 print("Processing Fix data...")
-dat <- read.csv("data/FixationsTest.txt", header=T, sep="\t")
-names(dat) = c("subj", "session", "trialNo", "fixNum", "trialType", "xFix", "yFix", "fixStartTime", "fixEndTime", "hemianopia", "targPresent",	"targSide",	"row", "column", "difficulty", "name")
+dat <- read.csv("data/DisplayOnFlipped.txt", header=T, sep="\t")
+names(dat) = c("subj", "session", "trialNo", "fixNum", "trialType", "xFix","xFixFlipped", "yFix", "fixStartTime", "fixEndTime", "hemianopia", "targPresent",	"targSide",	"row", "column", "difficulty", "name")
 levels(dat$targPresent) = c("absent", "present")
 levels(dat$trialType) = c("left","right", "unmodified")
 dat$subj = as.factor(dat$subj)
@@ -129,64 +129,64 @@ fixdat = readRDS(file="data/processedFixData.Rda")
 #
 # flip hemiSide = right so we can pretend hemiSide isn't a condition
 #
-print("...flipping trials for hemi==right")
+#print("...flipping trials for hemi==right")
 
 
-fixdat$xFix=fixdat$xFix -512
-fixdat$subj = as.factor(fixdat$subj)
+#fixdat$xFix=fixdat$xFix -512
+#fixdat$subj = as.factor(fixdat$subj)
 # itemdat$itemX = itemdat$itemX - 512 + 64
   
-for (s in levels(fixdat$subj))
-{
-	subjDat = filter(fixdat, subj==s)
-	subjDat$trial = factor(subjDat$trial)
-	for (t in levels(subjDat$trial))
-	{
-		if (subjDat$trialType[which(subjDat$trial==t)][1]=="right")
-		{
-			idx = which(fixdat$subj==s & fixdat$trial==t)
-			fixdat$xFix[idx] = - fixdat$xFix[idx]
-		}
-	}
-	rm(subjDat)
-}
-rm(s,t, idx)
+#for (s in levels(fixdat$subj))
+#{
+#	subjDat = filter(fixdat, subj==s)
+#	subjDat$trial = factor(subjDat$trial)
+#	for (t in levels(subjDat$trial))
+#	{
+#		if (subjDat$trialType[which(subjDat$trial==t)][1]=="right")
+#		{
+#			idx = which(fixdat$subj==s & fixdat$trial==t)
+#			fixdat$xFix[idx] = - fixdat$xFix[idx]
+#		}
+#	}
+#	rm(subjDat)
+#}
+#rm(s,t, idx)
 
- fixdat$xFix = fixdat$xFix + 512
+#fixdat$xFix = fixdat$xFix + 512
 
 #
 # get saccade info
 #
-print("...calcualting sacc amp and ang")
+#print("...calcualting sacc amp and ang")
 fixdat$saccAmp = NaN
 fixdat$saccAng = NaN
-for (s in levels(fixdat$subj))
-{
-	subjdat = fixdat[which(fixdat$subj==s),]
-	subjdat$trial = factor(subjdat$trial)
-	for (t in levels(subjdat$trial))
-	{
-		if (length(which(fixdat$subj==s & fixdat$trial==t))>0)
-		{
-			saccDat    = saccInfo(fixdat[which(fixdat$subj==s & fixdat$trial==t),])		
-			fixdat$saccAmp[which(fixdat$subj==s & fixdat$trial==t)] = saccDat$amp
-			fixdat$saccAng[which(fixdat$subj==s & fixdat$trial==t)] = saccDat$ang	
-			rm(saccDat)	
-		}
-	}
-	rm(subjdat)
-}
-rm(s, t)
+#for (s in levels(fixdat$subj))
+#{
+#	subjdat = fixdat[which(fixdat$subj==s),]
+#	subjdat$trial = factor(subjdat$trial)
+#	for (t in levels(subjdat$trial))
+#	{
+#		if (length(which(fixdat$subj==s & fixdat$trial==t))>0)
+#		{
+#			saccDat    = saccInfo(fixdat[which(fixdat$subj==s & fixdat$trial==t),])		
+#			fixdat$saccAmp[which(fixdat$subj==s & fixdat$trial==t)] = saccDat$amp
+#			fixdat$saccAng[which(fixdat$subj==s & fixdat$trial==t)] = saccDat$ang	
+#			rm(saccDat)	
+#		}
+#	}
+#	rm(subjdat)
+#}
+#rm(s, t)
 
  dat = fixdat
-fixdat = data.frame(subj=dat$subj,  session=dat$session, trial=dat$trial, trialType=dat$trialType, targSide=dat$targSideRel, fixNum=dat$fixNum, xFix=dat$xFix, yFix=dat$yFix, fixDur=dat$fixDur, saccAmp=dat$saccAmp, saccAng=dat$saccAng, difficulty=dat$difficulty)
+fixdat = data.frame(subj=dat$subj,  session=dat$session, trial=dat$trial, trialType=dat$trialType, targSide=dat$targSideRel, fixNum=dat$fixNum,xFixFlipped=dat$xFixFlipped, xFix=dat$xFix, yFix=dat$yFix, fixDur=dat$fixDur, saccAmp=dat$saccAmp, saccAng=dat$saccAng, difficulty=dat$difficulty)
 
 levels(dat$trialType) = c("blank", "blank", "unmodified")
 
-saveRDS(fixdat,file="data/processedFixData.Rda")
-write.table(fixdat, "data/processedFixData.txt", sep=",")
-#saveRDS(fixdat,file="../data/processedFixData.Rda")
-#write.table(fixdat, "../data/processedFixData.txt", sep=",")
+saveRDS(fixdat,file="data/processedFixDataDisplayOn.Rda")
+write.table(fixdat, "data/processedFixDataDisplayOn.txt", sep=",")
+#saveRDS(fixdat,file="data/processedFixDataFacesOn.Rda")
+#write.table(fixdat, "data/processedFixDataFacesOn.txt", sep=",")
 
 
 
